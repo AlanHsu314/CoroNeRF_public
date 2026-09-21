@@ -1,0 +1,56 @@
+###############################################
+### quick smoke benchmark spec
+###############################################
+
+benchmark:
+  name: smoke
+  base_config: ../config_coronerf.yaml # [INPUT DIR] config path relative to this file
+  output_dir: ../../runs_benchmarks/smoke # [OUTPUT DIR] folder with all benchmark runs, relative to this file
+
+  fixed:
+    verbosity: 1
+    wandb.enabled: false
+    io.no_save: false
+    device: cuda
+    use_dummy_dir: false
+
+    train.max_steps: 5
+    train.log_every: 1
+    train.checkpoint_every: 5
+    train.render_every: 0
+    train.loss_curve_every: 0
+    train.shell_debug_every: 0
+    train.occ_update_every: 2
+
+    eval.enable_inline: false
+    vpgen.n_lon: 8
+
+  seeds: [1]
+
+  experiments:
+    - name: mlp_smoke
+      overrides:
+        model.name: density_mlp
+        renderer.renderer_model: uniform
+      grid:
+        DensityMLP_kwargs.hidden_dim: [64]
+        DensityMLP_kwargs.num_hidden: [2]
+
+    - name: spherical_grid_smoke
+      overrides:
+        model.name: density_spherical_grid
+        renderer.renderer_model: uniform
+      grid:
+        train.lambda_smooth: [0.0, 100.0]
+
+
+
+
+
+
+
+
+
+
+
+

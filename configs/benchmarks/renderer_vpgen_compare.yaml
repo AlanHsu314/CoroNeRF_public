@@ -1,0 +1,66 @@
+benchmark:
+  name: renderer_vpgen_compare
+  base_config: ../config_coronerf.yaml
+  output_dir: ../../runs_benchmarks/renderer_vpgen_compare
+
+  fixed:
+    mode: vpgen
+    verbosity: 1
+    wandb.enabled: False
+    io.no_save: False
+    use_dummy_dir: False
+    device: cuda
+
+    vpgen.n_lon: 30
+    vpgen.spatial_H: 128
+    vpgen.spatial_W: 128
+    vpgen.dump_samples: True
+    vpgen.dump_samples_only_first: True
+    vpgen.dump_samples_max: 200000
+    vpgen.dump_samples_bins: 200
+    vpgen.dump_samples_stats_max: 2000000
+
+    renderer.occ_res: 128
+    renderer.occ_eval_fn_ne_mid: 7.25
+    renderer.occ_eval_fn_ne_width: 0.25
+    renderer.enable_min_samples_fallback: True
+    renderer.fallback_when_samples: 8
+    renderer.min_samples_per_ray: 500
+
+  post_vpgen_compare:
+    enabled: True
+    reference_experiment: uniform_ref
+    out_subdir: dataset_compare
+    save_num_worst_views: 3
+
+  seeds: [0xC0FFEE]
+
+  experiments:
+    - name: uniform_ref
+      overrides:
+        renderer.renderer_model: uniform
+        run_dir_name: renderer_uniform_ref
+
+    - name: uniform_step512
+      overrides:
+        renderer.renderer_model: uniform
+        renderer.step_size: 0.001953125
+        run_dir_name: renderer_uniform_step512
+
+    - name: uniform_step1024
+      overrides:
+        renderer.renderer_model: uniform
+        renderer.step_size: 0.0009765625
+        run_dir_name: renderer_uniform_step1024
+
+    - name: nerfacc_step512
+      overrides:
+        renderer.renderer_model: nerfacc
+        renderer.step_size: 0.001953125
+        run_dir_name: renderer_nerfacc_step512
+
+    - name: nerfacc_step1024
+      overrides:
+        renderer.renderer_model: nerfacc
+        renderer.step_size: 0.0009765625
+        run_dir_name: renderer_nerfacc_step1024

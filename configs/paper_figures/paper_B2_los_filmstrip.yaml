@@ -1,0 +1,61 @@
+figure_id: {group: paper_B2, slug: los_filmstrip, section: main}
+figure:
+  name: paper_B2_los_filmstrip
+  benchmark_dir: ../../runs_benchmarks/2026_08_16__paper_B2_joint_target_channel_ablation
+  device: cuda
+  path_remap:
+    enabled: true
+    only_if_missing: true
+    prefix_rewrites:
+      - from: <REPO_ROOT>
+        to: <REPO_ROOT>
+
+  run: {experiment: all4, where: {train_num_views: 300}}
+  source: pred                 # pred | gt
+  n_cols: 6
+  lat: 0.0
+  lon_range: [0.0, 360.0]      # even longitudes across a full rotation
+
+  # ZOOM = fov_rsun (the picture frame). Set this to 2.0 to "crop to 2 R_sun".
+  render:
+    H: 512
+    W: 512
+    fov_rsun: 1.5 # image frame extent (zoom)
+    obs_r: 215.0
+    chunk_rays: 8192
+    integ_r_min_rsun: 1.1  # 3D LOS integration domain (defaults to 1.0, only coronal regions)
+    integ_r_max_rsun: 2.5
+    uniform_samples: 1024 # requires a max, since now we have uniform radial samples instead of relying on old renderer samples
+
+  # optional soft annulus INSIDE the frame (independent of fov). r_min=0 keeps the disk.
+  mask: {r_min_rsun: 0.0, r_max_rsun: 2.0}    # remove/comment to disable; set enabled:false to force off
+
+  quantities:
+    - {quantity: column_ne, cmap: inferno, label: "column $n_{\\rm e}$",        log: false,
+       color: {percentile: [2.0, 99.5]}}
+    - {quantity: ewt_temp,  cmap: viridis, label: "$\\epsilon$-weighted $T_{\\rm e}$",     log: false,
+       color: {percentile: [2.0, 98.0]}}
+
+  color_limits:
+    column_ne: {vmin: 0.1e19, vmax: 1.3e19}    # column n_e
+    ewt_temp:  {vmin: 1.0e6, vmax: 1.9e6}   # emission-weighted T (linear K)
+
+  plot:
+    figsize: [11, 3.5]
+    dpi: 300
+    formats: [pdf, png]
+    font_size: 9
+    title_font_size: 11
+    tick_font_size: 9
+    aspect: equal
+    interpolation: nearest
+    colorbar: true
+    colorbar_fraction: 0.012
+    colorbar_pad: 0.01
+    bad_color: black
+    title: null
+
+    wspace: 0.02
+    hspace: 0.06
+    w_pad: 0.02
+    h_pad: 0.02

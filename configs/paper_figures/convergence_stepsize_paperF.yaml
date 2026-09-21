@@ -1,0 +1,35 @@
+convergence:
+  name: stepsize_convergence_paperF
+  benchmark_dir: ../../runs_benchmarks/2026_06_19__paper_F_epistemic_uncertainty
+  experiment: clean   # any run; we render GT
+  min_seeds: 1
+  output_dir: ../../paper_outputs/diagnostics/convergence
+
+  path_remap:
+    enabled: true
+    only_if_missing: true
+    prefix_rewrites:
+      - from: <REPO_ROOT>
+        to: <REPO_ROOT>
+
+  # 1/128, 1/256(production), 1/512, 1/1024 in AABB units (× 30 R_sun for physical Δs)
+  step_sizes: [0.0078125, 0.00390625, 0.001953125, 0.0009765625]
+
+  views:
+    n_views: 8            # evenly spaced in longitude; or set explicit lons: [0.0, 0.78, ...] (radians)
+    lat: 0.0
+    obs_r: 215.0
+    H: 200               # (200x200, FOV [-3,3] R_sun)
+    W: 200
+    fov_rsun: 3.0
+  r_min_rsun: 1.0        # coronal mask: compare only pixels outside the occulted disk
+
+  asinh_scale_by_channel: [1.3e-2, 4.5e-4, 1.0e-2, 5.8e-2]   # your baseline s_c, for the asinh image metric
+
+  # optional — to isolate the pure step effect, disable the min-samples floor so step_size alone drives sampling:
+  # enable_min_samples_fallback: false
+  # min_samples_per_ray: 64
+
+  save_images: false     # true also dumps the rendered stacks into the npz (large)
+  formats: [pdf, png]
+  dpi: 200

@@ -1,0 +1,41 @@
+benchmark:
+  name: model_compare
+  base_config: ../config_coronerf.yaml
+  output_dir: ../../runs_benchmarks/model_compare
+
+  fixed:
+    verbosity: 1
+    wandb.enabled: True
+    wandb.mode: 'offline'
+    io.no_save: False
+    use_dummy_dir: False
+    device: cuda
+
+    train.max_steps: 30000
+    train.log_every: 100
+    train.checkpoint_every: 3000
+    train.render_every: 3000
+    train.loss_curve_every: 3000
+    train.shell_debug_every: 3000
+    train.occ_update_every: 16
+
+    eval.enable_inline: True
+    eval.eval_every: 3000
+
+  seeds: [0xC0FFEE, 16, 0x4af0a0]
+
+  experiments:
+    - name: density_mlp_uniform
+      overrides:
+        model.name: density_mlp
+        renderer.renderer_model: uniform
+      grid:
+        DensityMLP_kwargs.hidden_dim: [64, 128, 256]
+        DensityMLP_kwargs.num_hidden: [2, 4, 8]
+
+    - name: density_grid_uniform
+      overrides:
+        model.name: density_spherical_grid
+        renderer.renderer_model: uniform
+      grid:
+        train.lambda_smooth: [0.0, 10.0, 100.0, 1000.0]

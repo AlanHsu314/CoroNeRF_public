@@ -1,0 +1,71 @@
+benchmark:
+  name: data_ablation_data_compute
+  base_config: ../config_coronerf.yaml
+  output_dir: ../../runs_benchmarks/data_ablation_data_compute
+
+  fixed:
+    mode: train
+    verbosity: 1
+    wandb.enabled: True
+    wandb.mode: offline
+    io.no_save: False
+    use_dummy_dir: False
+    device: cuda
+
+    model.name: density_mlp
+    renderer.renderer_model: uniform
+    DensityMLP_kwargs.hidden_dim: 256
+    DensityMLP_kwargs.num_hidden: 4
+
+    train.log_every: 100
+    train.checkpoint_every: 3000
+    train.render_every: 3000
+    train.loss_curve_every: 3000
+    train.shell_debug_every: 3000
+
+    eval.enable_inline: True
+    eval.eval_every: 3000
+
+    load_data_kwargs.train_type: subset
+    load_data_kwargs.train_subset_strategy: evenly_spaced
+    load_data_kwargs.train_subset_offset: 0
+    load_data_kwargs.holdout_type: fixed_count
+    load_data_kwargs.holdout_num_views: 30
+    load_data_kwargs.holdout_subset_strategy: evenly_spaced
+    load_data_kwargs.holdout_subset_offset: 1
+
+  seeds: [0xC0FFEE]
+
+  experiments:
+    - name: budget_baseline
+      overrides:
+        train.batch_rays: 1024
+        train.max_steps: 30000
+      grid:
+        load_data_kwargs.train_num_views: [30, 300, 1000]
+        dataset_dir:
+          - ../../datasets/master_datasets_res/res64__seed-12648430__0ebd6a9b
+          - ../../datasets/master_datasets_res/res128__seed-12648430__12063a39
+          - ../../datasets/master_datasets_res/res256__seed-12648430__eb4c3af3
+
+    - name: budget_bigbatch
+      overrides:
+        train.batch_rays: 4096
+        train.max_steps: 30000
+      grid:
+        load_data_kwargs.train_num_views: [30, 300, 1000]
+        dataset_dir:
+          - ../../datasets/master_datasets_res/res64__seed-12648430__0ebd6a9b
+          - ../../datasets/master_datasets_res/res128__seed-12648430__12063a39
+          - ../../datasets/master_datasets_res/res256__seed-12648430__eb4c3af3
+
+    - name: budget_scaled
+      overrides:
+        train.batch_rays: 4096
+        train.max_steps: 60000
+      grid:
+        load_data_kwargs.train_num_views: [30, 300, 1000]
+        dataset_dir:
+          - ../../datasets/master_datasets_res/res64__seed-12648430__0ebd6a9b
+          - ../../datasets/master_datasets_res/res128__seed-12648430__12063a39
+          - ../../datasets/master_datasets_res/res256__seed-12648430__eb4c3af3

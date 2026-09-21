@@ -1,0 +1,24 @@
+global_validation:
+  name: global4                        # -> final/val_global4  (rename freely; scalable to global8, etc.)
+  benchmark_dir: ../../runs_benchmarks/2026_08_16__paper_B2_joint_target_channel_ablation
+  device: cuda
+  
+  path_remap:
+    enabled: true
+    only_if_missing: true
+    prefix_rewrites:
+      - from: <REPO_ROOT>
+        to: <REPO_ROOT>
+  
+  channel_indices: [0, 1, 2, 3]        # the fixed global channel set EVERY run is scored on
+  dataset_dir: null                    # null = reuse each run's dataset (same held-out arc, all 4 channels)
+  load_data_overrides: {}              # optional, e.g. { holdout_num_views: 60 } for a denser global set later
+  image_loss:                          # fixed across all runs -> cross-condition comparable
+    name: hetero_gaussian_asinh
+    lambda_asinh: 1.0
+    lambda_gauss: 0.0
+    asinh_scale_mode: fixed
+    asinh_scale_by_channel: [1.3e-2, 4.5e-4, 1.0e-2, 5.8e-2]   # canonical 4-channel (clean) scale
+  batch_rays: 4096
+  num_workers: 4
+  max_batches: null

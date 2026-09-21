@@ -1,0 +1,64 @@
+benchmark:
+  name: master_datasets_multiline
+  base_config: ../config_coronerf.yaml
+  output_dir: ../../runs_benchmarks/master_datasets_multiline
+
+  fixed:
+    mode: vpgen
+    verbosity: 1
+    debug: True
+    device: cuda
+    io.no_save: False
+    use_dummy_dir: False
+
+    wandb.enabled: False
+    wandb.mode: offline
+
+    # IMPORTANT:
+    # vpgen sets renderer.use_gt_ne=True internally.
+    # In the current renderer, use_gt_ne + reconstruction.target=ne_t is not
+    # supported cleanly, so force ne here for GT dataset generation.
+    reconstruction.target: ne
+
+    # Dataset root will be:
+    #   ../../datasets/master_datasets_res_4ch/<run_name>
+    dataset_base_dir: ../../datasets
+
+    # New 4-channel LUT bundle
+    LUT_dir: ../../data/LUT/v2
+
+    # Master 4-channel metadata/order must match the LUT exactly.
+    # Note: channel_indices is used by train-time data loading, not vpgen.
+
+    renderer.renderer_model: uniform
+    renderer.step_size: 0.00390625
+    renderer.wavelengths: [10747.0, 10798.0, 25846.4727, 39292.7305]
+
+    ion_kwargs.ion_name: fe13_si9_lut
+    ion_kwargs.n_levels: 50
+    ion_kwargs.wavelengths: [10747.0, 10798.0, 25846.4727, 39292.7305]
+    ion_kwargs.line_names:
+      - Fe XIII 1074.7
+      - Fe XIII 1079.8
+      - Si IX 2584.6
+      - Si IX 3929.3
+
+    vpgen.fov_rsun: 3
+    vpgen.n_lon: 3000
+    vpgen.obs_r: 215
+    vpgen.dtype: float
+
+    vpgen.dump_samples: False
+    vpgen.dump_samples_only_first: True
+    vpgen.dump_samples_max: 200000
+    vpgen.dump_samples_bins: 200
+    vpgen.dump_samples_stats_max: 2000000
+
+  seeds: [0xC0FFEE]
+
+  experiments:
+    - name: res256
+      overrides: 
+        vpgen.spatial_H: 256
+        vpgen.spatial_W: 256
+        run_dir_name: dataset_res256_v3000

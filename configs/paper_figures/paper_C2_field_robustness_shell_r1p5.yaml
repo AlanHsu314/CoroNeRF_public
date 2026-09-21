@@ -1,0 +1,90 @@
+figure_id:
+  group: paper_C2
+  slug: shells
+  section: appendix
+
+figure:
+  name: paper_C2_field_robustness_shell_r1p5
+  benchmark_dir: ../../runs_benchmarks/2026_08_31__paper_C2_noise_view_stress_test
+  #output_dir: ../../paper_outputs/figures/paper_C
+
+  path_remap:
+    enabled: true
+    only_if_missing: true
+    prefix_rewrites:
+      - from: <REPO_ROOT>
+        to: <REPO_ROOT>
+
+  device: cuda
+  radius: 1.5
+
+  selection_metric: final/temp_shell_inner/shell_mean_abs_dlog_mean
+  selection_policy: best     # best | median | first
+  select_mode: min
+
+  columns:
+    - label: Ground truth
+      source: gt
+
+    - label: Clean, 300 views
+      experiment: clean
+      where:
+        train_num_views: 300
+
+    - label: "Noise $\\times25$, 300 views"
+      experiment: noise_x25
+      where:
+        train_num_views: 300
+
+    - label: "Noise $\\times25$, 20 views"
+      experiment: noise_x25
+      where:
+        train_num_views: 20
+
+  quantities:
+    - quantity: ne
+      row_label: ""
+      field_cmap: inferno
+      field_color:
+        source: gt              # gt | all
+        percentile: [1.0, 99.0]
+        label: "$\\log_{10} n_{\\rm e}$"
+        # vmin: 5.5
+        # vmax: 8.5
+
+    - quantity: temp
+      row_label: ""
+      field_cmap: viridis
+      field_color:
+        source: gt              # gt | all
+        percentile: [1.0, 99.0]
+        label: "$\\log_{10} T_{\\rm e}$"
+        # vmin: 5.8
+        # vmax: 6.4
+
+  plot:
+    title: null
+    figsize: [10.2, 4.8]
+    dpi: 300
+    formats: [png, pdf]
+
+    font_size: 8
+    title_font_size: 9
+    tick_font_size: 7
+
+    longitude_mode: zero_360    # zero_360 | minus180_180 | native
+    xlabel: Longitude [deg]
+    ylabel: Latitude [deg]
+
+    aspect: auto                # auto | equal
+    interpolation: nearest      # nearest | bilinear
+
+    colorbar_fraction: 0.035
+    colorbar_pad: 0.02
+
+    # ticks and spacing
+    wspace: 0.02
+    hspace: 0.06
+    w_pad: 0.02
+    h_pad: 0.02
+    pack_ticks: true

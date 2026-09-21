@@ -1,0 +1,136 @@
+benchmark:
+  name: 2026_05_01__heterogauss_phase1_hash_capacity
+  base_config: ../config_coronerf.yaml
+  output_dir: ../../runs_benchmarks/2026_05_01__heterogauss_phase1_hash_capacity
+
+  history_plots:
+    enabled: True
+    select_by: final/temp_shell_inner/shell_mean_abs_dlog_mean
+    select_mode: min
+    band_name: inner
+    out_subdir: history_plots
+    include:
+      - train_loss
+      - image_mse
+      - image_logmse
+      - image_psnr
+      - ne_mean_abs_dlog
+      - ne_mean_abs_frac
+      - temp_mean_abs_dlog
+      - temp_mean_abs_frac
+
+  post_condition_compare:
+    enabled: false
+
+  fixed:
+    mode: train
+    verbosity: 1
+    wandb.enabled: True
+    wandb.mode: offline
+    io.no_save: False
+    use_dummy_dir: False
+    device: cuda
+
+    dataset_dir: ../../datasets/master_datasets_multiline/res256__seed-12648430__eb4c3af3
+    LUT_dir: ../data/LUT/v2
+
+    reconstruction.target: ne_t
+
+    renderer.renderer_model: uniform
+    renderer.step_size: 0.00390625
+
+    train.batch_rays: 1024
+    train.max_steps: 60000
+    train.log_every: 100
+    train.checkpoint_every: 6000
+    train.render_every: 6000
+    train.loss_curve_every: 6000
+    train.shell_debug_every: 6000
+
+    train.image_loss.name: hetero_gaussian_asinh
+    train.image_loss.lambda_gauss: 1.0
+    train.image_loss.lambda_asinh: 10.0
+    train.image_loss.use_huber_asinh: false
+    train.image_loss.huber_delta: 0.05
+
+    eval.enable_inline: True
+    eval.eval_every: 6000
+    eval.chunk_size: 8192
+    eval.log_eps: 1.0e-12
+    eval.shell_radii: [1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 3.0, 3.5, 4.0]
+    eval.shell_metric_bands.low_corona: [1.1, 1.5]
+    eval.shell_metric_bands.inner: [1.1, 2.0]
+    eval.shell_metric_bands.mid: [1.1, 2.6]
+    eval.shell_metric_bands.full: [null, null]
+
+    load_data_kwargs.train_type: subset
+    load_data_kwargs.train_num_views: 300
+    load_data_kwargs.train_subset_strategy: evenly_spaced
+    load_data_kwargs.train_subset_offset: 0
+
+    load_data_kwargs.holdout_type: fixed_count
+    load_data_kwargs.holdout_num_views: 30
+    load_data_kwargs.holdout_subset_strategy: evenly_spaced
+    load_data_kwargs.holdout_subset_offset: 1
+
+    load_data_kwargs.channel_indices: [0, 1, 2, 3]
+
+    model.name: plasma_hash_field
+    model.dtype: float
+    model.strict_types: True
+    model.test_model: False
+
+    observation_noise.enabled: True
+    observation_noise.apply_to: train
+    observation_noise.model: hetero_gaussian
+    observation_noise.seed_offset: 0xFACADE
+
+    observation_noise.diagnostics.enabled: True
+    observation_noise.diagnostics.positive_eps: 1.0e-12
+    observation_noise.diagnostics.percentiles: [10.0, 50.0, 90.0]
+    observation_noise.diagnostics.max_quantile_samples: 200000
+    observation_noise.diagnostics.radial_bins:
+      - name: low_corona
+        r_min: 1.01
+        r_max: 1.5
+      - name: inner
+        r_min: 1.01
+        r_max: 2.0
+      - name: mid_outer_inner
+        r_min: 1.5
+        r_max: 2.0
+      - name: full
+        r_min: 1.01
+        r_max: 3.0
+
+    observation_noise.hetero_gaussian.shot_coeff_by_global_channel: [0.01, 0.0005, 0.01, 0.05]
+    observation_noise.hetero_gaussian.sigma_floor_by_global_channel: [0.0, 0.0, 0.0, 0.0]
+
+  seeds: [0xC0FFEE]
+
+  experiments:
+    # current hash config anchor
+    - name: current
+      overrides: {}
+
+    # Family A: fewer hash levels
+    - name: levels_8
+      overrides:
+        PlasmaField_kwargs.n_levels: 8
+
+    - name: levels_12
+      overrides:
+        PlasmaField_kwargs.n_levels: 12
+
+    - name: levels_16
+      overrides:
+        PlasmaField_kwargs.n_levels: 16
+
+    # Family B: coarser finest resolution
+    - name: finest_128
+      overrides:
+        PlasmaField_kwargs.finest_resolution: 128
+
+    - name: finest_256
+      overrides:
+        PlasmaField_kwargs.finest_resolution: 256

@@ -1,0 +1,405 @@
+# Config for coronerf (I --> Ne)
+
+##################################
+### general
+##################################
+
+device: 'cuda'
+seed: 0xC0FFEE
+
+forward_backend: 'lut' # LUT to use LUT generated from CHIANTI, otherwise 'pycelp' for sampling directly via pycelp, not implemented yet
+
+# mode of reconstruction
+reconstruction:
+  target: 'ne_t' # ne | ne_t
+
+runtime:
+  force_cluster: null # null | true | false
+
+io:
+  no_save: True # if true, does not save anything for the run (purely CLI output)
+
+# weights and biases logging
+wandb:
+  enabled: False
+  mode: 'offline' # online (laptop) | offline (cluster) | disabled (off)
+  project: 'coroNeRF'
+  entity: 'anon'
+  group: null
+  tags: null
+  dataset_name: null
+
+###################################
+### vpgen mode ONLY
+###################################
+vpgen:
+  spatial_H: 200 # H pixels
+  spatial_W: 200 # W pixels
+  fov_rsun: 3    # +/- fov_rsun extent
+  n_lon: 10 #300 #300     # num viewpoints
+  obs_r: 215     # distance from observer to sun, in r_sun
+  dtype: 'float' # specify double if float64, otherwise defaults to float32
+  dump_samples: False               # should we save LOS samples
+  dump_samples_only_first: True    # only save those form first viewpoint
+  dump_samples_max: 200000         # how many pts to save
+  dump_samples_bins: 200           # how many bins (for stats summary)
+  dump_samples_stats_max: 2000000  # how many pts (for stats summary)
+
+############################
+# directories
+############################
+
+use_dummy_dir: False # if true, will specifically save to runs/test
+run_dir_name: null #'thisonesgotyournameonit' # explicit run dir name, keep as null for one-off runs
+resume_run_dir: '' # which run to resume (if resuming)
+
+verbosity: 2 # 2 for everything, 1 for main steps, 0 for nothing 
+debug: True # will run checks throughout
+
+load_data_kwargs:
+  train_type: 'subset' # 'subset' | 'full' | 'small'
+  train_num_views: 10
+  train_subset_strategy: evenly_spaced # 'evenly_spaced'
+  train_subset_offset: 0
+
+  holdout_type: fixed_count
+  holdout_num_views: 5
+  holdout_subset_strategy: evenly_spaced # 'evenly_spaced' | 'complement'
+  holdout_subset_offset: 1
+
+  channel_indices: [0, 1, 2, 3] # channels from LUT to use, must match ion info
+
+  test_stride: 30 # legacy helper for what I used to call 'full'
+
+dataset_dir: '../datasets/20251216-191150_density_v1' #'../datasets/20251223-173136_density_v1' #'../datasets/20251216-191150_density_v1' #20251223-173136 #null # location of dataset, if training
+dataset_base_dir: '../datasets' # base folder for vpgen
+base_dir: '../runs'                # where to store the experiment
+run_id_suffix: ''                  # suffix for experiment name
+
+LUT_dir: '../data/LUT/v2' # where to get LUT and grid values
+
+###############################
+# observational model mismatch
+###############################
+observation_mismatch:
+  enabled: False
+  apply_to: all          # all | train | test
+  model: channel_scale   # channel_scale (effective abundance mismatch)
+
+  diagnostics:
+    enabled: True
+    positive_eps: 1.0e-12
+    percentiles: [10.0, 50.0, 90.0]
+    max_quantile_samples: 200000
+    radial_bins:
+      - name: low_corona
+        r_min: 1.01
+        r_max: 1.5
+      - name: inner
+        r_min: 1.01
+        r_max: 2.0
+      - name: mid_outer_inner
+        r_min: 1.5
+        r_max: 2.0
+      - name: full
+        r_min: 1.01
+        r_max: 3.0
+
+  # scale s_c for each channel: I_{mismatch,c} = s_c * I_c, efefctive abundance mismatch
+  channel_scale:
+    scale: null                    # same scale for all channels
+    scale_by_global_channel: null  # per-channel scaling, default
+
+###############################
+# observational noise
+###############################
+observation_noise:
+  enabled: False           
+  apply_to: 'train'        # apply only to train data
+  model: 'effective_shot'  # effective_shot | hetero_gaussian
+  seed_offset: 0xFACADE    # noise offset across runs to the config seed
+  fixed_noise_seed: null   # for benchmarks, same noise offset across runs
+
+  diagnostics:
+    enabled: False          
+    positive_eps: 1.0e-12  
+    percentiles: [10.0, 50.0, 90.0] # percentiles saved for logging
+    max_quantile_samples: 200000    # number of samples to compute quantiles
+    radial_bins:                    # per radial-bin diagnostics
+      - name: low_corona
+        r_min: 1.01
+        r_max: 1.5
+      - name: inner
+        r_min: 1.01
+        r_max: 2.0
+      - name: mid_outer_inner
+        r_min: 1.5
+        r_max: 2.0
+      - name: full
+        r_min: 1.01
+        r_max: 3.0
+  
+  # effective poisson noise: Poisson(lambda), lambda = alpha * I
+  effective_shot:
+    alpha: null                                           # single value for everything
+    alpha_by_global_channel: [100.0, 100.0, 40.0, 40.0]   # per-channel, perfer this
+
+  # heteroscedastic gaussian noise: 
+  # I_obs = I + eps 
+  # eps ~ N(0, sigma(I)^2)
+  # sigma(I) = sqrt(aI + b^2)
+  hetero_gaussian: 
+    shot_coeff: null
+    shot_coeff_by_global_channel: null # a = shot_coeff, shot-like poisson noise term
+    sigma_floor: null
+    sigma_floor_by_global_channel: null # b = sigma_floor, noise floor
+
+
+#######################
+# LUT interpolators
+#######################
+
+# temp interpolator
+temp_field:
+  dtype: 'float' # float or double, defaults to float
+  log: True # interpolate logT instead of T, defaults to True
+  strict_types: True # device dtype checking
+  test: False
+
+# ccoef interpolator
+ccoef_field:
+  dtype: 'float'
+  ne_log: True
+  temp_log: True
+  r_log: True
+  test: False
+
+# ne interpolator (for testing)
+ne_field:
+  dtype: 'float'
+  log: True
+  strict_types: True
+  test: False
+
+#################################
+### scene parameters. shared among model and renderer
+#################################
+scene:
+  aabb_scale: 30 #R_sun, to convert AABB to [-1,1]^3 scale for rays_o (in case we want to go back to R_sun)
+  aabb_min: -1 # axis-alinged bounding box min
+  aabb_max: 1 # axis-alinged bounding box max
+
+##############################
+### Plasma Field Models
+##############################
+PlasmaField_kwargs:
+  backend: 'torch'             # 'torch' | 'tcnn' | 'auto'
+  backend_fallback: True
+
+  in_dim: 3                    # spatial coordinate dimension into hash grid
+
+  n_levels: 20                 # levels in hash grid
+  n_features_per_level: 2      # feature dim per level (same across all levels)
+  log2_hashmap_size: 20        # table size
+  base_resolution: 16          # coarsest resolution of table
+  finest_resolution: 512       # finest resolution of table
+
+  use_raw_xyz: False           # concatenates raw xyz features
+  use_sh_encoding: False       # concatenates spherical harmonics encoding
+  sh_degree: 2
+
+  shared_hidden_dim: 64        # shared trunk
+  shared_num_hidden: 0
+  head_hidden_dim: 64          # separate decoder head
+  head_num_hidden: 2
+
+##############################
+### Legacy NeRF models
+##############################
+
+# model class
+model:
+  name: 'plasma_hash_field' # 'density_mlp' | 'density_spherical_grid' | 'density_hash_mlp' | 'plasma_mlp' | 'plasma_hash_field'
+  dtype: 'float'
+  test_pe: False
+  test_model: False
+  strict_types: True
+
+# specific DensityMLP model kwargs
+DensityMLP_kwargs:
+  hidden_dim: 256   # benchmark: model_compare
+  num_hidden: 4     # benhcmark: model_compare
+  L: 6
+  in_dim: 3
+  use_sh_encoding: True
+  sh_degree: 2
+
+# specific DensitySphericalGrid model kwargs
+DensitySphericalGrid_kwargs:
+  init_value: 7.5 # log10 cm^-3
+
+# specific DensityHashMLP model kwargs
+DensityHashMLP_kwargs:
+  backend: 'torch'             # 'torch' | 'tcnn' | 'auto'
+  backend_fallback: True
+
+  in_dim: 3                    # spatial coordinate dimension into hash grid
+
+  n_levels: 16                 # levels in hash grid
+  n_features_per_level: 3      # feature dim per level (same across all levels)
+  log2_hashmap_size: 19        # table size
+  base_resolution: 16          # coarsest resolution of table
+  finest_resolution: 512       # finest resolution of table
+
+  decoder_hidden_dim: 64       # decoder MLP head
+  decoder_num_hidden: 2
+
+  use_raw_xyz: False           # concatenates raw xyz features
+  use_sh_encoding: False       # concatenates spherical harmonics encoding
+  sh_degree: 2
+
+##############################
+### rendering
+##############################
+
+# rendering
+renderer:
+  use_gt_ne: False # use PSI ne field (purely for testing, will not use model)
+  test: False
+  dtype: 'float'
+  strict_types: True
+  clamp: True
+  renderer_model: 'uniform' # 'uniform' | 'nerfacc'
+  occ_res: 128 # occupancy grid resolution
+  step_size: 0.00390625 #0.0009765625 #0.00390625 # 1 / 256, step size between consecutive samples, (aabb_max - aabb_min) / 512 worst case
+  sigma_scale: 1 # initial guess sigma (occupancy grid) importance samppling scale of ne
+  occ_warmup: 256 # number of steps to ignore smoothing
+  occ_decay: 0.01 # exponential smoothing rate
+  occ_alpha: 1.5 # ne^alpha for importance weight
+  rsun_to_cm: 69570000000 # R_sun to cm
+  wavelengths: [10747.0, 10798.0, 25846.4727, 39292.7305] # angstroms for each channel
+  occ_eval_fn_ne_width: 0.25 # width to normalize (log cm^-3) before sigmoid in occ_eval_fn
+  occ_eval_fn_ne_mid: 7.25 # center to normalize (log cm^-3) before sigmoid in occ_eval_fn
+  enable_min_samples_fallback: True # for rays with samples < min_samples_per_ray, fallback to uniform sampling
+  fallback_when_samples: 8 # how many samples for a nerfacc ray before we fallback to uniform
+  min_samples_per_ray: 500 # minimum samples per ray for fallback rays
+
+#################################
+### training
+################################
+
+# training hyperparameters
+train:
+  batch_rays: 1024 #1024
+  lr: 5.0e-4
+  weight_decay: 1.0e-5
+  loss_eps: 6.0e-6
+  max_steps: 15 #2000 #20000
+  shell_debug_every: 5 #500
+  shell_debug_radii: [1.2, 1.5, 2.0] # which shells to render, R_sun
+  loss_curve_every: 5 #500
+  render_every: 5 #500
+  log_every: 5
+  checkpoint_every: 5 # 2000
+  max_keep: 1
+  lambda_ne: 0.0 # strength of density regularizer
+  lambda_temp: 0.0 # strength of temp regularizer (not implemented yet)
+  batch_ne_points: 1024 # how many 3D pts for n_e supervision
+  ne_every: 5 # how often to apply the regularizer
+  lambda_smooth: 1.0e+2 # L2/L1 smoothness regularizer for density grid
+  smooth_every: 1
+  smooth_kwargs:
+    lambda_lon: 1.0          # weight for lon diffs
+    lambda_lat: 1.0          # weight for lat diffs
+    lambda_r: 1.0            # weight for r diffs
+    radial_weight_power: 0.0 # weighted radius by r**pow
+    squared: True            # True = L2, False = L1
+  occ_update_every: 16 # how often to update occupancy grid during training
+  image_loss:
+    name: log_ratio_cosh       # log_ratio_cosh | hetero_gaussian_asinh
+    lambda_gauss: 0.0          # lambda_gauss * L_gauss + lambda_asinh * L_asinh
+    lambda_asinh: 1.0
+    use_huber_asinh: False     # huber loss on the asinh term
+    huber_delta: 0.05
+
+    # how to scale the asinh transform:
+    # auto         -> use target_sigma if present, else fixed scale
+    # target_sigma -> require batch target_sigma
+    # fixed        -> always use asinh_scale / asinh_scale_by_channel
+    asinh_scale_mode: auto
+
+    # scalar fallback for fixed mode
+    asinh_scale: 1.0
+
+    # per-channel fixed scales for fixed mode, default for fixed mode
+    asinh_scale_by_channel: null
+  validation_loss:
+    enabled: True
+    every: 10000
+    batch_rays: 4096
+    max_batches: null # full set
+    num_workers: 0
+    image_loss:
+      name: hetero_gaussian_asinh
+      lambda_gauss: 0.0
+      lambda_asinh: 1.0
+      use_huber_asinh: false
+      huber_delta: 0.05
+      asinh_scale_mode: fixed
+      asinh_scale_by_channel: [1.3e-2, 4.5e-4, 1.0e-2, 5.8e-2]
+
+################################
+### evaluation
+################################
+
+eval:
+  enable_inline: True              # check during training
+  eval_every: 5 #2000                 # when 2 evaluate
+  chunk_size: 8192                 # ray chunk size
+  log_eps: 1.0e-12                 # epsilon for noise lower bound
+  shell_radii: [1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 3, 3.5, 4.0] # radii to evaluate
+
+  shell_metric_bands:
+    inner: [1.1, 2.0]
+    mid: [1.1, 2.6]
+    full: [null, null]
+
+
+#########################
+### pycelp + psi stuff
+#########################
+
+#ion kwargs
+ion_kwargs:
+  ion_name: 'fe13_si9' # legacy name
+  n_levels: 50
+  wavelengths: [10747.0, 10798.0, 25846.4727, 39292.7305]
+  line_names:
+    - 'Fe XIII 1074.7'
+    - 'Fe XIII 1079.8'
+    - 'Si IX 2584.6'
+    - 'Si IX 3929.3'
+
+###########################
+### fitting using n_e data
+###########################
+fit_ne:
+  lr: 3.0e-4
+  weight_decay: 1.0e-5
+  batch_pts: 65536
+  max_steps: 1000 #20000
+  r_min: 1.0
+  r_max: 3.0
+  log_every: 100
+  shell_debug_every: 1000
+  r_shell: 1.51
+  checkpoint_every: 1000 #2000
+  max_keep: 2
+
+# psi_kwargs:
+#   CR_number: 2149
+
+# rgi_kwargs:
+#   method: 'linear'
+#   fill_value: 0.0
+#   bounds_error: False

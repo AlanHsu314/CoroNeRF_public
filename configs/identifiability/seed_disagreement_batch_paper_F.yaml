@@ -1,0 +1,40 @@
+seed_disagreement_batch:
+  name: paperF
+  benchmark_dir: ../../runs_benchmarks/2026_06_19__paper_F_epistemic_uncertainty
+  device: cuda
+  path_remap:
+    enabled: true
+    prefix_rewrites:
+      - {from: <REPO_ROOT>,
+         to: <REPO_ROOT>}
+
+  # shared reduction settings (match your hero spec)
+  fields:
+    quantities: [ne, temp]
+    radii: [1.5]
+    primary_radius: 1.5
+    error_mode: ensemble_mean_abs
+    disagreement: std
+    slice:                       # NEW: emit a fixed-longitude (lat, r) ensemble slice into arrays.npz
+      longitude: 0.0             # deg; the meridian to cut (interpolator is periodic, any value ok)
+      r_min: 1.05
+      r_max: 3.0
+      n_r: 128
+  image_residual: {enabled: false}     # skip the slow per-seed view renders in batch
+  diagnostic: {enabled: false}         # skip the scatter/calibration per condition
+  save_hero: true                      # cheap field-grid PNG per condition
+  plot: {dpi: 200, formats: [png]}
+
+  # START SMALL: uncomment more as their 10-seed ensembles finish.
+  conditions:
+    - {id: clean_300v, experiment: clean,        where: {train_num_views: 300}}
+    - {id: clean_100v,  experiment: clean,        where: {train_num_views: 100}}
+    - {id: clean_20v,  experiment: clean,        where: {train_num_views: 20}}
+    - {id: clean_5v, experiment: clean,        where: {train_num_views: 5}}
+    - {id: noise_x1,   experiment: noise_x1,     where: {train_num_views: 300}}
+    - {id: noise_x9,   experiment: noise_x9,     where: {train_num_views: 300}}
+    - {id: noise_x25,  experiment: noise_x25,   where: {train_num_views: 300}}
+    - {id: si_x0p6,    experiment: si_abund_x0p6}
+    - {id: si_x0p8,    experiment: si_abund_x0p8}
+    - {id: si_x1p2,    experiment: si_abund_x1p2}
+    - {id: si_x1p4,    experiment: si_abund_x1p4}

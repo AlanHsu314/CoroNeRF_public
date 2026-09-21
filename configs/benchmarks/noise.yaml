@@ -1,0 +1,156 @@
+benchmark:
+  name: noise
+  base_config: ../config_coronerf.yaml
+  output_dir: ../../runs_benchmarks/noise
+
+  # history plots comparing best run of each experiment family
+  history_plots:
+    enabled: True
+    select_by: final/temp_shell_low_corona/shell_mean_abs_dlog_mean
+    select_mode: min
+    band_name: low_corona
+    out_subdir: history_plots
+    include:
+      - train_loss
+      - image_mse
+      - image_logmse
+      - image_psnr
+      - ne_mean_abs_dlog
+      - ne_mean_abs_frac
+      - temp_mean_abs_dlog
+      - temp_mean_abs_frac
+
+  # compare selected runs compared to reference run
+  post_condition_compare:
+    enabled: true
+    reference_experiment: clean
+
+    # optional:
+    # comparison_experiments: [noisy] # defaults to all non-clean families
+    # comparison_run_names: []
+    # reference_run_name: null
+
+    # if an experiment family has multiple conditions, keep this many
+    max_conditions_per_experiment: 3
+
+    select_by: final/temp_shell_low_corona/shell_mean_abs_dlog_mean
+    select_mode: min
+    out_subdir: condition_compare
+
+    # optional override for posthoc rendering
+    device: cuda
+
+    train_panels:
+      enabled: true
+      num_views: 5
+      strategy: evenly_spaced
+      chunk_size: 8192
+      eps: 1.0e-12
+
+    test_panels:
+      enabled: true
+      num_views: 5
+      strategy: evenly_spaced
+      chunk_size: 8192
+      eps: 1.0e-12
+      use_reference_prediction: true
+
+    shell_compare:
+      enabled: true
+      quantities: [ne, temp]
+      metric_key: mean_abs_dlog
+
+    scatter:
+      enabled: true
+      quantities: [ne, temp]
+      max_points_per_shell: 5000
+      seed: 0
+
+  # fixed params for benchmark study
+  fixed:
+    mode: train
+    verbosity: 1
+    wandb.enabled: True
+    wandb.mode: offline
+    io.no_save: False
+    use_dummy_dir: False
+    device: cuda
+
+    dataset_dir: ../../datasets/master_datasets_multiline/res256__seed-12648430__eb4c3af3
+    LUT_dir: '../data/LUT/v2'
+
+    reconstruction.target: ne_t
+
+    renderer.renderer_model: uniform
+    renderer.step_size: 0.00390625
+
+    train.batch_rays: 1024
+    train.max_steps: 30000
+    train.log_every: 100
+    train.checkpoint_every: 3000
+    train.render_every: 3000
+    train.loss_curve_every: 3000
+    train.shell_debug_every: 3000
+
+    eval.enable_inline: True
+    eval.eval_every: 3000
+    eval.chunk_size: 8192
+    eval.log_eps: 1.0e-12
+    eval.shell_radii: [1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 3.0, 3.5, 4.0]
+    eval.shell_metric_bands.low_corona: [1.1, 1.5]
+    eval.shell_metric_bands.inner: [1.1, 2.0]
+    eval.shell_metric_bands.mid: [1.1, 2.6]
+    eval.shell_metric_bands.full: [null, null]
+
+    load_data_kwargs.train_type: subset
+    load_data_kwargs.train_num_views: 300
+    load_data_kwargs.train_subset_strategy: evenly_spaced
+    load_data_kwargs.train_subset_offset: 0
+
+    load_data_kwargs.holdout_type: fixed_count
+    load_data_kwargs.holdout_num_views: 30
+    load_data_kwargs.holdout_subset_strategy: evenly_spaced
+    load_data_kwargs.holdout_subset_offset: 1
+
+    load_data_kwargs.channel_indices: [0, 1, 2, 3]
+
+    model.name: plasma_hash_field
+    model.dtype: float
+    model.strict_types: True
+    model.test_model: False
+
+    observation_noise.enabled: True
+    observation_noise.apply_to: train
+    observation_noise.model: effective_shot
+    observation_noise.seed_offset: 0xFACADE
+    observation_noise.diagnostics.enabled: True
+    observation_noise.diagnostics.positive_eps: 1.0e-12
+    observation_noise.diagnostics.percentiles: [10.0, 50.0, 90.0]
+    observation_noise.diagnostics.max_quantile_samples: 200000
+    observation_noise.diagnostics.radial_bins:
+      - name: low_corona
+        r_min: 1.01
+        r_max: 1.5
+      - name: inner
+        r_min: 1.01
+        r_max: 2.0
+      - name: mid_outer_inner
+        r_min: 1.5
+        r_max: 2.0
+      - name: full
+        r_min: 1.01
+        r_max: 3.0
+
+  seeds: [0xC0FFEE, 0xDECAF, 0xBADD1E]
+
+  experiments:
+    - name: clean
+      overrides:
+        observation_noise.enabled: False
+
+    - name: noisy
+      grid:
+        observation_noise.effective_shot.alpha_by_global_channel: 
+          - [100.0, 2000.0, 100.0, 20.0] # raw SNR
+          - [300.0, 6000.0, 300.0, 60.0] # med SNR
+          - [500.0, 10000.0, 500.0, 100.0] # well SNR

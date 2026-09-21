@@ -1,0 +1,192 @@
+benchmark:
+  name: paper_canon_smoke
+  base_config: ../config_coronerf.yaml
+  output_dir: ../../runs_benchmarks/paper_canon_smoke
+
+  history_plots:
+    enabled: True
+    select_by: final/temp_shell_inner/shell_mean_abs_dlog_mean
+    select_mode: min
+    band_name: inner
+    out_subdir: history_plots
+    include:
+      - train_loss
+      - val_loss
+      - image_mse
+      - image_logmse
+      - image_psnr
+      - ne_mean_abs_dlog
+      - ne_mean_dlog
+      - ne_median_dlog
+      - ne_mean_abs_frac
+      - temp_mean_abs_dlog
+      - temp_mean_dlog
+      - temp_median_dlog
+      - temp_mean_abs_frac
+
+  post_condition_compare:
+    enabled: false
+    reference_experiment: baseline
+    max_conditions_per_experiment: 1
+    select_by: final/temp_shell_inner/shell_mean_abs_dlog_mean
+    select_mode: min
+    out_subdir: condition_compare
+    device: cuda
+
+    train_panels:
+      enabled: true
+      num_views: 5
+      strategy: evenly_spaced
+      chunk_size: 8192
+      eps: 1.0e-12
+
+    test_panels:
+      enabled: true
+      num_views: 5
+      strategy: evenly_spaced
+      chunk_size: 8192
+      eps: 1.0e-12
+      use_reference_prediction: true
+
+    shell_compare:
+      enabled: true
+      quantities: [ne, temp]
+      metric_key: mean_dlog
+
+    scatter:
+      enabled: true
+      quantities: [ne, temp]
+      max_points_per_shell: 5000
+      seed: 0
+
+  fixed:
+    ###########################################################
+    ### canonical top-level params
+    ###########################################################
+    mode: train
+    verbosity: 1
+    wandb.enabled: false
+    wandb.mode: offline
+    io.no_save: false
+    use_dummy_dir: false
+    device: cuda
+
+    ###########################################################
+    ### canonical data protocol
+    ###########################################################
+    dataset_dir: ../../datasets/master_datasets_multiline_smoke/res256__seed-12648430__eb4c3af3
+
+    load_data_kwargs.train_type: subset
+    load_data_kwargs.train_num_views: 300
+    load_data_kwargs.train_subset_strategy: evenly_spaced
+    load_data_kwargs.train_subset_offset: 0
+
+    load_data_kwargs.holdout_type: fixed_count
+    load_data_kwargs.holdout_num_views: 30
+    load_data_kwargs.holdout_subset_strategy: evenly_spaced
+    load_data_kwargs.holdout_subset_offset: 1
+
+    load_data_kwargs.channel_indices: [0, 1, 2, 3]
+
+    ###########################################################
+    ### canonical model protocol
+    ###########################################################
+    reconstruction.target: ne_t
+
+    model.name: plasma_hash_field
+    model.dtype: float
+    model.strict_types: True
+    model.test_model: False
+
+    PlasmaField_kwargs.n_levels: 20
+    PlasmaField_kwargs.n_features_per_level: 2
+    PlasmaField_kwargs.log2_hashmap_size: 20
+    PlasmaField_kwargs.base_resolution: 16
+    PlasmaField_kwargs.finest_resolution: 512
+    PlasmaField_kwargs.shared_hidden_dim: 64
+    PlasmaField_kwargs.shared_num_hidden: 0      # default no trunk
+    PlasmaField_kwargs.head_hidden_dim: 64
+    PlasmaField_kwargs.head_num_hidden: 2
+
+    renderer.renderer_model: uniform
+    renderer.step_size: 0.00390625
+
+    ###########################################################
+    ### canonical training protocol
+    ###########################################################
+    train.batch_rays: 1024
+    train.max_steps: 60000
+    train.log_every: 100
+    train.checkpoint_every: 10000
+    train.render_every: 10000
+    train.loss_curve_every: 10000
+    train.shell_debug_every: 10000
+    train.shell_debug_radii: [1.2, 1.5, 2.0]
+
+    train.image_loss.name: hetero_gaussian_asinh
+    train.image_loss.lambda_gauss: 0.0
+    train.image_loss.lambda_asinh: 1.0
+    train.image_loss.use_huber_asinh: false
+    train.image_loss.huber_delta: 0.05
+    train.image_loss.asinh_scale_mode: fixed
+    train.image_loss.asinh_scale_by_channel: [1.3e-2, 4.5e-4, 1.0e-2, 5.8e-2]
+
+    ###########################################################
+    ### canonical evaluation protocol
+    ###########################################################
+    eval.enable_inline: True
+    eval.eval_every: 10000
+    eval.chunk_size: 8192
+    eval.log_eps: 1.0e-12
+    eval.shell_radii: [1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 3.0, 3.5, 4.0]
+    eval.shell_metric_bands.low_corona: [1.1, 1.5]
+    eval.shell_metric_bands.inner: [1.1, 2.0]
+    eval.shell_metric_bands.inner_plus: [1.1, 2.6]
+    eval.shell_metric_bands.outer_fov: [2.0, 3.0]
+    eval.shell_metric_bands.los_outer: [3.0, 4.0]
+    eval.shell_metric_bands.full: [1.1, 4.0]
+
+    ###########################################################
+    ### canonical validation protocol
+    ###########################################################
+    train.validation_loss.enabled: True
+    train.validation_loss.every: 10000
+    train.validation_loss.batch_rays: 4096
+    train.validation_loss.max_batches: null       # full heldout set
+    train.validation_loss.num_workers: 0
+    train.validation_loss.image_loss.name: hetero_gaussian_asinh
+    train.validation_loss.image_loss.lambda_gauss: 0.0
+    train.validation_loss.image_loss.lambda_asinh: 1.0
+    train.validation_loss.image_loss.use_huber_asinh: false
+    train.validation_loss.image_loss.huber_delta: 0.05
+    train.validation_loss.image_loss.asinh_scale_mode: fixed
+    train.validation_loss.image_loss.asinh_scale_by_channel: [1.3e-2, 4.5e-4, 1.0e-2, 5.8e-2]
+
+    ###########################################################
+    ### observational protocol
+    ###########################################################
+    observation_mismatch.enabled: False
+    observation_noise.enabled: False
+
+
+  seeds: [0xC0FFEE] #, 0xDECAF, 0xBADD1E]
+
+  experiments:
+    - name: smoke
+      overrides:
+        wandb.enabled: false
+
+        load_data_kwargs.train_num_views: 20
+        load_data_kwargs.holdout_num_views: 2
+
+        train.max_steps: 500
+        train.log_every: 100
+        train.checkpoint_every: 500
+        train.render_every: 500
+        train.loss_curve_every: 500
+        train.shell_debug_every: 500
+
+        eval.eval_every: 100
+        train.validation_loss.every: 100
+        train.validation_loss.batch_rays: 1024
+        train.validation_loss.max_batches: 2

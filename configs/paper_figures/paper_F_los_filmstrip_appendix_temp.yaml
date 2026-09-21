@@ -1,0 +1,61 @@
+figure_id: {group: paper_F, slug: los_filmstrip, section: appendix}
+figure:
+  name: paper_F_los_filmstrip_temp
+  benchmark_dir: ../../runs_benchmarks/2026_06_19__paper_F_epistemic_uncertainty
+  device: cuda
+  path_remap:
+    enabled: true
+    only_if_missing: true
+    prefix_rewrites:
+      - from: <REPO_ROOT>
+        to: <REPO_ROOT>
+
+  run: {}
+  source: both                 # pred | gt | both
+  n_cols: 6
+  lat: 0.0
+  lon_range: [0.0, 360.0]      # even longitudes across a full rotation
+
+  # ZOOM = fov_rsun (the picture frame). Set this to 2.0 to "crop to 2 R_sun".
+  render:
+    H: 512
+    W: 512
+    fov_rsun: 1.5 # image frame extent (zoom)
+    obs_r: 215.0
+    chunk_rays: 8192
+    integ_r_min_rsun: 1.1  # 3D LOS integration domain (defaults to 1.0, only coronal regions)
+    integ_r_max_rsun: 2.5
+    uniform_samples: 1024 # requires a max, since now we have uniform radial samples instead of relying on old renderer samples
+
+  # optional soft annulus INSIDE the frame (independent of fov). r_min=0 keeps the disk.
+  mask: {r_min_rsun: 0.0, r_max_rsun: 2.0}    # remove/comment to disable; set enabled:false to force off
+
+  quantities: []
+
+  rows:
+    - {quantity: ewt_temp, source: gt,   run: {experiment: clean},         where: {train_num_views: 300}, label: "GT"} #, log: true}
+    - {quantity: ewt_temp, source: pred, run: {experiment: clean},         where: {train_num_views: 300}, label: "clean, 300v"} #, log: true}
+    - {quantity: ewt_temp, source: pred, run: {experiment: clean},         where: {train_num_views: 20},  label: "clean, 20v"} #,  log: true}
+    - {quantity: ewt_temp, source: pred, run: {experiment: clean},         where: {train_num_views: 5},   label: "clean, 5v"} #,   log: true}
+    - {quantity: ewt_temp, source: pred, run: {experiment: noise_x25},     where: {train_num_views: 300}, label: "noise x25"} #,   log: true}
+    - {quantity: ewt_temp, source: pred, run: {experiment: si_abund_x0p6}, where: {train_num_views: 300}, label: "Si x0.6"} #,     log: true}
+    - {quantity: ewt_temp, source: pred, run: {experiment: si_abund_x1p4}, where: {train_num_views: 300}, label: "Si x1.4"} #,     log: true}
+
+  color_limits:
+    column_ne: {vmin: 0.1e19, vmax: 1.3e19}    # column n_e # {vmin: 0.1e19, vmax: 1.3e19} | {vmin: 17.25, vmax: 19.5}
+    ewt_temp:  {vmin: 1.0e6, vmax: 1.9e6}   # emission-weighted T (linear K)
+
+  plot:
+    figsize: [7.0, 7.0]
+    dpi: 300
+    formats: [pdf, png]
+    font_size: 8
+    title_font_size: 9
+    tick_font_size: 7
+    aspect: equal
+    interpolation: nearest
+    colorbar: true
+    colorbar_fraction: 0.012
+    colorbar_pad: 0.01
+    bad_color: black
+    title: null

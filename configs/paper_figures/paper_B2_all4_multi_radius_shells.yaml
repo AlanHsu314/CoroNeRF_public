@@ -1,0 +1,106 @@
+figure_id: 
+  group: paper_B2
+  slug: shells
+  section: appendix
+
+figure:
+  name: paper_B2_all4_multi_radius_shells
+  benchmark_dir: ../../runs_benchmarks/2026_08_16__paper_B2_joint_target_channel_ablation
+  #output_dir: ../../paper_outputs/figures/paper_B
+
+  path_remap:
+    enabled: true
+    only_if_missing: true
+    prefix_rewrites:
+      - from: <REPO_ROOT>
+        to: <REPO_ROOT>
+
+  run:
+    experiment: all4
+    selection_policy: median
+    selection_metric: final/temp_shell_inner/shell_mean_abs_dlog_mean
+    select_mode: min
+    # seed: 12648430  # uncomment to force a specific seed
+
+  radii: [1.2, 1.5, 1.9]
+
+  # If omitted, the script defaults to exactly these six rows.
+  rows:
+    - quantity: ne
+      mode: gt
+      row_label: "$n_{\\rm e}$ GT"
+      field_cmap: inferno
+      field_color:
+        source: gt
+        percentile: [1, 99]
+        label: "$\\log_{10} n_{\\rm e}$"
+
+    - quantity: ne
+      mode: pred
+      row_label: "$n_{\\rm e}$ pred."
+      field_cmap: inferno
+      field_color:
+        source: gt
+        percentile: [1, 99]
+        label: "$\\log_{10} n_{\\rm e}$"
+
+    - quantity: ne
+      mode: residual
+      row_label: "$n_{\\rm e}$ residual"
+      residual_cmap: PiYG
+      residual_color:
+        percentile: 99
+        label: "$\\Delta \\log_{10} n_{\\rm e}$"
+
+    - quantity: temp
+      mode: gt
+      row_label: "$T_{\\rm e}$ GT"
+      field_cmap: viridis
+      field_color:
+        source: gt
+        percentile: [1, 99]
+        label: "$\\log_{10} T_{\\rm e}$"
+
+    - quantity: temp
+      mode: pred
+      row_label: "$T_{\\rm e}$ pred."
+      field_cmap: viridis
+      field_color:
+        source: gt
+        percentile: [1, 99]
+        label: "$\\log_{10} T_{\\rm e}$"
+
+    - quantity: temp
+      mode: residual
+      row_label: "$T_{\\rm e}$ residual"
+      residual_cmap: PiYG
+      residual_color:
+        percentile: 99
+        label: "$\\Delta \\log_{10} T_{\\rm e}$"
+
+  plot:
+    figsize: [5.4, 6.6]
+    dpi: 300
+    formats: [png, pdf]
+
+    font_size: 7
+    title_font_size: 8
+    tick_font_size: 6
+
+    longitude_mode: zero_360
+    interpolation: nearest
+    aspect: auto
+
+    xlabel: "Longitude [deg]"
+    ylabel: "Latitude [deg]"
+    column_title_format: "$r={r:.2f}\\,R_\\odot$"
+
+    residual_cmap: PiYG
+    colorbar_fraction: 0.035
+    colorbar_pad: 0.02
+
+    wspace: 0.02
+    hspace: 0.06        
+    w_pad: 0.02
+    h_pad: 0.02
+    pack_ticks: true

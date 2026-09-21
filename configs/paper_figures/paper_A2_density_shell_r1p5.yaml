@@ -1,0 +1,108 @@
+figure_id: 
+  group: paper_A2
+  slug: shells
+  section: main
+
+figure:
+  name: paper_A2_density_shell_r1p5
+
+  # Path to completed Paper A benchmark directory.
+  benchmark_dir: ../../runs_benchmarks/2026_08_20__paper_A2_density_representation_fe_pair
+
+  # Paper-level output directory.
+  #output_dir: ../../paper_outputs/figures/paper_A
+
+  # running locally?
+  path_remap:
+    enabled: true
+    only_if_missing: true
+
+    # default: local repo mirrors cluster repo, override path before it
+    prefix_rewrites:
+      - from: <REPO_ROOT>
+        to: <REPO_ROOT>
+
+    # Local root that contains the same repo-relative subfolders as the cluster:
+    #   datasets/master_datasets_multiline/...
+    #   data/LUT/...
+
+    # if everything isnt in the same local repo root, use overrides
+    # overrides:
+    #   dataset_dir: .
+    #   LUT_dir: .
+
+    # if you manually want to rewrite specific folders in the loca_root
+    # suffix_markers:
+    #   dataset_dir: datasets
+    #   dataset_base_dir: datasets
+    #   LUT_dir: data
+    #   base_dir: .
+
+  quantity: ne
+  radius: 1.5
+  device: cuda
+
+  # Use representative, not cherry-picked, runs.
+  selection_metric: final/ne_shell_inner/shell_mean_abs_dlog_mean
+  selection_policy: median     # median | best | first
+  select_mode: min
+
+  panels:
+    - label: Ground truth
+      source: gt
+
+    - label: Classical
+      experiment: grid_smooth_10
+      selection_policy: median
+
+    - label: MLP
+      experiment: mlp_256x4
+      selection_policy: median
+
+    - label: Hash grid
+      experiment: hash_l20
+      selection_policy: median
+
+  residual:
+    enabled: true
+    show_gt_zero: false
+
+  plot:
+    title: null
+    figsize: [10, 4]
+    dpi: 300
+    formats: [png, pdf]
+
+    font_size: 9
+    title_font_size: 10
+    tick_font_size: 9
+
+    longitude_mode: zero_360   # minus180_180 | zero_360 | native
+    xlabel: Longitude [deg]
+    ylabel: Latitude [deg]
+    aspect: auto
+    interpolation: nearest
+
+    field_cmap: inferno
+    residual_cmap: PiYG #coolwarm
+
+    # Density panels use GT-only limits by default.
+    field_color:
+      source: gt
+      percentile: [1.0, 99.0]
+      label: "$\\log_{10} n_e$"
+
+    # Residual panels use symmetric signed-dlog limits.
+    residual_color:
+      percentile: 99.0
+      label: "$\\Delta \\log_{10} n_e$"
+
+    colorbar_fraction: 0.035
+    colorbar_pad: 0.02
+
+    # ticks and spacing
+    wspace: 0.02
+    hspace: 0.06        # just enough that the two colorbars/titles don't collide
+    w_pad: 0.02
+    h_pad: 0.02
+    pack_ticks: true

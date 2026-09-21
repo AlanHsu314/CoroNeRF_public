@@ -1,0 +1,66 @@
+figure_id: 
+  group: paper_A2
+  slug: slices
+  section: appendix
+figure:
+  name: paper_A2_density_slice_lon0
+  benchmark_dir: ../../runs_benchmarks/2026_08_20__paper_A2_density_representation_fe_pair
+  
+  path_remap:
+    enabled: true
+    only_if_missing: true
+
+    # default: local repo mirrors cluster repo, override path before it
+    prefix_rewrites:
+      - from: <REPO_ROOT>
+        to: <REPO_ROOT>
+  
+  quantity: ne
+  slice: { longitude: 0.0, r_min: 1.1, r_max: 3.0, n_r: 128 }        # fixed-lon meridional slice
+  panels:
+    - label: Ground truth
+      source: gt
+
+    - label: Classical
+      experiment: grid_smooth_10
+      selection_policy: median
+
+    - label: MLP
+      experiment: mlp_256x4
+      selection_policy: median
+
+    - label: Hash grid
+      experiment: hash_l20
+      selection_policy: median
+  residual: { enabled: true }
+  plot:
+    xlabel: "$r\\ [R_\\odot]$"       # (set automatically, override if you like)
+    ylabel: "Latitude [deg]"
+    aspect: auto
+    figsize: [10, 4]
+
+    field_cmap: inferno
+    residual_cmap: PiYG #coolwarm
+
+    # Density panels use GT-only limits by default.
+    field_color:
+      source: gt
+      percentile: [1.0, 99.0]
+      label: "$\\log_{10} n_e$"
+
+    # Residual panels use symmetric signed-dlog limits.
+    residual_color:
+      percentile: 99.0
+      label: "$\\Delta \\log_{10} n_e$"
+
+    colorbar_fraction: 0.035
+    colorbar_pad: 0.02
+
+    # ticks and spacing
+    wspace: 0.02
+    hspace: 0.06        # just enough that the two colorbars/titles don't collide
+    w_pad: 0.02
+    h_pad: 0.02
+    pack_ticks: true
+
+

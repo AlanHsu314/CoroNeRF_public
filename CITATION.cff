@@ -1,0 +1,40 @@
+cff-version: 1.2.0
+message: "If you use this software or its results, please cite the paper below."
+title: "CoroNeRF: differentiable multiline neural coronal tomography"
+version: 0.1.0
+date-released: 2026-09-19
+license: MIT
+repository-code: "https://github.com/AlanHsu314/CoroNeRF_public"
+url: "https://github.com/AlanHsu314/CoroNeRF_public"
+authors:
+  - family-names: Hsu
+    given-names: Alan
+    affiliation: "Harvard University"
+    orcid: "https://orcid.org/0009-0009-6353-5989"
+    email: alan.hsu@cfa.harvard.edu
+preferred-citation:
+  type: article
+  title: "Image Fidelity is Not Field Fidelity: Joint Thermodynamic Reconstruction and Error Localization in Neural Tomography"
+  year: 2026
+  authors:
+    - family-names: Hsu
+      given-names: Alan
+      affiliation: "Harvard University"
+      orcid: "https://orcid.org/0009-0009-6353-5989"
+    - family-names: Samra
+      given-names: Jenna
+      affiliation: "Smithsonian Astrophysical Observatory"
+      orcid: "https://orcid.org/0000-0002-4498-8706"
+    - family-names: Connor
+      given-names: Liam
+      affiliation: "Harvard University"
+      orcid: "https://orcid.org/0000-0002-7587-6352"
+    - family-names: Paraschiv
+      given-names: Alin Razvan
+      affiliation: "National Solar Observatory"
+      orcid: "https://orcid.org/0000-0002-3491-1983"
+    
+  identifiers:
+    - type: doi
+      value: "arXiv:XXXX.XXXXX"
+      description: "arXiv preprint"

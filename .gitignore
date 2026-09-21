@@ -1,0 +1,68 @@
+# ============================================================
+# CoroNeRF - .gitignore
+# ============================================================
+ 
+# --- Python bytecode / build / packaging ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+ 
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+.python-version
+ 
+# --- Editor / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+ 
+# --- Generated inputs: PSI cube, LUTs, datasets ---
+# Track only the placeholder READMEs that explain how to rereproduce.
+/data/*
+!/data/README.md
+/datasets/*
+!/datasets/README.md
+ 
+# --- Training / diagnostics / figure outputs ---
+/runs/
+runs_*/
+/paper_outputs/
+/results/
+/outputs/
+/logs/
+*.log
+REGISTRY.md
+ 
+# --- Weights & Biases ---
+wandb/
+ 
+# --- Heavy binary artifacts (regenerated, never committed) ---
+# To commit one intentionally: git add -f <file>
+*.npy
+*.npz
+*.pkl
+*.hdf
+*.h5
+*.hdf5
+*.fits
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+*.avi
+*.mp4
+*_preview.gif
+*_palette.png

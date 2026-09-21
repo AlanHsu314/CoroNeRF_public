@@ -1,0 +1,86 @@
+figure_id:
+  group: paper_D2
+  slug: shells
+  section: appendix
+
+figure:
+  name: paper_D2_abundance_shell_r1p5
+  benchmark_dir: ../../runs_benchmarks/2026_09_14__paper_D2_abundance_mismatch
+  #output_dir: ../../paper_outputs/figures/paper_D
+
+  path_remap:
+    enabled: true
+    only_if_missing: true
+    prefix_rewrites:
+      - from: <REPO_ROOT>
+        to: <REPO_ROOT>
+
+  device: cuda
+  radius: 1.5
+
+  # For final appendix visuals, median is more defensible.
+  # For quick inspection, best is fine.
+  selection_metric: final/temp_shell_inner/shell_mean_abs_dlog_mean
+  selection_policy: median       # best | median | first
+  select_mode: min
+
+  columns:
+    - label: Ground truth
+      source: gt
+
+    - label: Clean
+      experiment: clean
+
+    - label: "Si $\\times0.6$"
+      experiment: si_abund_x0p6
+
+    - label: "Si $\\times1.4$"
+      experiment: si_abund_x1p4
+
+  quantities:
+    - quantity: ne
+      row_label: ""
+      field_cmap: inferno
+      field_color:
+        source: gt              # gt | all
+        percentile: [1.0, 99.0]
+        label: "$\\log_{10} n_{\\rm e}$"
+        # vmin: 5.5
+        # vmax: 8.5
+
+    - quantity: temp
+      row_label: ""
+      field_cmap: viridis
+      field_color:
+        source: gt              # gt | all
+        percentile: [1.0, 99.0]
+        label: "$\\log_{10} T_{\\rm e}$"
+        # vmin: 5.8
+        # vmax: 6.4
+
+  plot:
+    title: null
+    figsize: [10.2, 4.8]
+    dpi: 300
+    formats: [png, pdf]
+
+    font_size: 8
+    title_font_size: 9
+    tick_font_size: 7
+
+    longitude_mode: zero_360    # zero_360 | minus180_180 | native
+    xlabel: Longitude [deg]
+    ylabel: Latitude [deg]
+
+    aspect: auto                # auto | equal
+    interpolation: nearest      # nearest | bilinear
+
+    colorbar_fraction: 0.035
+    colorbar_pad: 0.02
+
+    # ticks and spacing
+    wspace: 0.02
+    hspace: 0.06
+    w_pad: 0.02
+    h_pad: 0.02
+    pack_ticks: true

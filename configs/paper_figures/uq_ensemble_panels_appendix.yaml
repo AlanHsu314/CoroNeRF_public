@@ -1,0 +1,22 @@
+figure_id: { group: uq, slug: ensemble_panels, section: appendix }
+ensemble_panels:
+  name: fig_ensemble_panels_appendix
+  output_dir: ../../paper_outputs/figures/uq
+  disagreement_npz: ../../runs_benchmarks/2026_06_19__paper_F_epistemic_uncertainty/diagnostics/seed_disagreement/noise_x9/arrays.npz
+  analytic_npz:     ../../runs_identifiability/sweeps/paperF_noise_view_mismatch/conditions/noise_x9/analysis.npz
+  map_radius: 1.5
+  quantities: [ne, temp]                 # set to [ne] to drop temperature for the main text
+  columns:    [ens_mean, ens_err, disagreement]   # default; add/remove from {gt, ens_mean, ens_err, disagreement, crb, post, pdom}
+  formats: [pdf, png]
+  plot:
+    figsize: [9, 4.5]
+    wspace: 0.025
+    hspace: 0.2
+    colorbar_columns: [ens_mean, ens_err, disagreement]
+    percentile: [2, 98]
+    analytic_interp: bilinear
+    field_cmap: magma
+    bad_color: white
+    title_fontsize: 10
+    label_fontsize: 10
+    dpi: 300

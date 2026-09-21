@@ -1,0 +1,89 @@
+figure_id: 
+  group: paper_B2
+  slug: summary
+  section: appendix
+
+figure:
+  name: paper_B2_spectral_radial_curves
+  benchmark_dir: ../../runs_benchmarks/2026_08_16__paper_B2_joint_target_channel_ablation
+  #output_dir: ../../paper_outputs/figures/paper_B
+
+  path_remap:
+    enabled: true
+    only_if_missing: true
+    prefix_rewrites:
+      - from: <REPO_ROOT>
+        to: <REPO_ROOT>
+
+  # Deterministic shell-grid evaluation at these requested radii.
+  # You can also use:
+  # radii:
+  #   linspace: {start: 1.1, stop: 2.0, num: 10}
+  # or non-cumulative bins:
+  # radii:
+  #   bins:
+  #     - {label: "1.1-1.3", r_min: 1.1, r_max: 1.3}
+  #     - {label: "1.3-1.5", r_min: 1.3, r_max: 1.5}
+  radii:
+    values: [1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0] #, 3.5, 4, 4.5, 5]
+
+  metric: mean_abs_dlog
+  selection_policy: all
+  selection_metric: final/temp_shell_inner/shell_mean_abs_dlog_mean
+  select_mode: min
+
+  quantities:
+    - quantity: ne
+      title: "$n_e$"
+      ylabel: "$\\mathrm{MAE}(\\log_{10} n_{\\rm e})$"
+    - quantity: temp
+      title: "$T$"
+      ylabel: "$\\mathrm{MAE}(\\log_{10} T_{\\rm e})$"
+
+  experiments:
+    - id: all4         # paper-readable
+      experiment: all4 # actual name of the run
+      label: "All 4"   # paper-readable
+      style: {marker: P, linestyle: "-", color: "#009E73"}
+
+    - id: fe13_pair
+      experiment: fe13_pair
+      label: "Fe XIII pair"
+      style: {marker: ^, linestyle: "-", color: "#E69F00"}
+
+    - id: si9_pair
+      experiment: si9_pair
+      label: "Si IX pair"
+      style: {marker: D, linestyle: "-", color: "#E69F00"}
+
+    - id: fe13_10747
+      experiment: fe13_10747
+      label: "Fe 1074.7"
+      style: {marker: o, linestyle: "--", color: "#0072B2"}
+
+    - id: si9_39293
+      experiment: si9_39293
+      label: "Si 3929.3"
+      style: {marker: s, linestyle: "--", color: "#0072B2"}
+
+  plot:
+    figsize: [7.5, 2.8]
+    dpi: 300
+    formats: [png, pdf]
+
+    font_size: 8
+    title_font_size: 9
+    tick_font_size: 7
+
+    xlabel: "Radius [$R_\\odot$]"
+    yscale: log
+    show_std: true
+    linewidth: 1.5
+    capsize: 2.0
+    grid_alpha: 0.25
+
+    legend: true
+    legend_loc: figure_bottom
+    legend_y: -0.08
+    legend_ncol: 5
+    legend_frame: false

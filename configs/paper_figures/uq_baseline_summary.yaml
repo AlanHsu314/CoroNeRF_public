@@ -1,0 +1,37 @@
+figure_id: { group: uq, slug: baseline_summary, section: main }
+baseline_summary:
+  name: fig_baseline_summary
+  output_dir: ../../paper_outputs/figures/uq
+  manifest:      ../../runs_identifiability/baselines/paperF_baselines/baselines_manifest.json
+  baselines_dir: ../../runs_identifiability/baselines/paperF_baselines
+  quantity: ne
+  layout: horizontal            # horizontal (side-by-side) | vertical (stacked)
+  ratios: [1.7, 1.0]            # ladder : sparsification (width if horizontal, height if vertical)
+  figsize: [12, 3.8]
+  panel_labels: false            # (a)/(b)
+  ladder:
+    order: [clean_300v, views_100, views_20, views_5, noise_x9, noise_x25, si_x0p6, si_x0p8, si_x1p2, si_x1p4]
+    condition_labels:
+      clean_300v: "noiseless"  
+      views_100: "$V{=}100$"
+      views_20: "$V{=}20$"
+      views_5: "$V{=}5$"
+      noise_x9: "$\\eta{=}9$"
+      noise_x25: "$\\eta{=}25$"
+      si_x0p6: "$a{=}0.6$"
+      si_x0p8: "$a{=}0.8$"
+      si_x1p2: "$a{=}1.2$"
+      si_x1p4: "$a{=}1.4$"
+    errorbars: true
+    ylabel: "Spearman $\\rho$ with $\\epsilon_{\\rm mean}$"
+    series:
+      - { source: correlations, key: sigma_vs_err,            label: "cross-seed instability $\\rho(\\sigma_{\\rm ens}, \\epsilon_{\\rm mean})$",                     color: "#009E73", marker: o }
+      - { source: correlations, key: emis_vs_err,             label: "inverse emissivity $\\rho(b_{\\mathcal{E}}, \\epsilon_{\\rm mean})$",        color: "#D55E00", marker: s }
+      - { source: correlations, key: sigma_vs_err_given_emis, label: "partial $\\rho(\\sigma_{\\rm ens}, \\epsilon_{\\rm mean} \\,|\\,b_{\\mathcal{E}})$", color: "#009E73", marker: ^ }
+    plot: { legend_loc: "upper right", legend_ncol: 1, tick_fontsize: 8, legend_fontsize: 8 }
+  sparsification:
+    condition: noise_x9
+    title: "noise $\\eta{=}9$"
+    methods: [oracle, random, sigma, emis]      # sigma=σ_ens, emis=inv-emissivity
+    ymode: risk                                   # "se" (sparsification error) or "risk" (retained MAE)
+    plot: { legend_loc: "lower left", legend_fontsize: 7, tick_fontsize: 8 }

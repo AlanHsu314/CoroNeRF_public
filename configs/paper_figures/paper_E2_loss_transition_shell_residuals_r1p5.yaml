@@ -1,0 +1,94 @@
+figure_id:
+  group: paper_E2
+  slug: shells
+  section: appendix
+
+figure:
+  name: paper_E2_loss_transition_shell_residuals_r1p5
+  benchmark_dir: ../../runs_benchmarks/2026_09_17__paper_E2_loss_ablation
+  #output_dir: ../../paper_outputs/figures/paper_E
+
+  # Keep this block if you move cluster run paths to a local machine.
+  # Edit/remove the rewrite for your environment.
+  path_remap:
+    enabled: true
+    only_if_missing: true
+    prefix_rewrites:
+      - from: <REPO_ROOT>
+        to: <REPO_ROOT>
+
+  device: cuda
+  radius: 1.5
+
+  # Use the same seed for all columns so the qualitative comparison isolates the loss.
+  # Remove the seed entries if that seed did not finish and you prefer median selection.
+  selection_metric: final/temp_shell_inner/shell_mean_abs_dlog_mean
+  selection_policy: median
+  select_mode: min
+
+  columns:
+    - label: "Gauss\nonly"
+      experiment: gauss_only
+      seed: 12648430   # 0xC0FFEE
+
+    - label: "Fixed Hybrid\n$\\lambda_G = 10^{-1}$"
+      experiment: fixed_hybrid_10
+      seed: 12648430
+
+    - label: "Fixed Hybrid\n$\\lambda_G = 10^{-3}$"
+      experiment: fixed_hybrid_1000
+      seed: 12648430
+
+    - label: "Fixed Hybrid\n$\\lambda_G = 10^{-5}$"
+      experiment: fixed_hybrid_100000
+      seed: 12648430
+
+    - label: "Fixed\nasinh"
+      experiment: fixed_asinh_only
+      seed: 12648430
+
+  quantities:
+    - quantity: ne
+      mode: residual
+      row_label: "$\\Delta \\log_{10} n_{\\rm e}$"
+      residual_cmap: PiYG #coolwarm
+      residual_color:
+        percentile: 99.0
+        label: "$\\Delta \\log_{10} n_{\\rm e}$"
+        # vlim: 0.20
+
+    - quantity: temp
+      mode: residual
+      row_label: "$\\Delta \\log_{10} T_{\\rm e}$"
+      residual_cmap: coolwarm
+      residual_color:
+        percentile: 99.0
+        label: "$\\Delta \\log_{10} T_{\\rm e}$"
+        # vlim: 0.08
+
+  plot:
+    title: null
+    figsize: [7.6, 3.0]
+    dpi: 300
+    formats: [png, pdf]
+
+    font_size: 8
+    title_font_size: 9
+    tick_font_size: 7
+
+    longitude_mode: zero_360
+    xlabel: Longitude [deg]
+    ylabel: Latitude [deg]
+
+    aspect: auto
+    interpolation: nearest
+
+    colorbar_fraction: 0.035
+    colorbar_pad: 0.02
+
+    # ticks and spacing
+    wspace: 0.02
+    hspace: 0.06
+    w_pad: 0.02
+    h_pad: 0.02
+    pack_ticks: true

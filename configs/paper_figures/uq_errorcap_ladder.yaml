@@ -1,0 +1,44 @@
+figure_id: { group: uq, slug: errorcap, section: main }
+
+errorcap_ladder:
+  name: fig_errorcap_ladder
+  output_dir: ../../paper_outputs/figures/uq
+  manifest: ../../runs_identifiability/baselines/paperF_baselines/baselines_manifest.json
+  baselines_dir: ../../runs_identifiability/baselines/paperF_baselines   # only needed if rot_scatter: true
+  quantities: [ne, temp]                 # -> two panels; use [ne] for a single panel
+  percent: true                          # E_cap on a 0-100 axis
+
+  conditions: [clean_300v, noise_x9, noise_x25, views_100, views_20, views_5]   # the 6 matched-model rungs, left->right
+  condition_labels:
+    clean_300v: "noiseless"
+    noise_x9:   "noise x9"
+    noise_x25:  "noise x25"
+    views_100:  "100 views"
+    views_20:   "20 views"
+    views_5:    "5 views"
+
+  titles: { ne: "density $n_{\\rm e}$", temp: "temperature $T_{\\rm e}$" }
+
+  # each series is one thing drawn at every condition; fully customizable
+  series:
+    - { stat: e_cap,     label: "observed $E_{\\rm cap}$",       color: "#009E73", marker: "o", ms: 8, dx:  0.00 }
+    - { stat: split,     label: "split-seed $E_{\\rm cap}^{B \\rightarrow A}$",     color: "#D55E00", marker: "s", ms: 6, dx:  0.16, errorbar: true, mfc: "none" }
+    - { stat: rot_null,  label: "rotation null mean $\\mu$",  color: "#9467bd", marker: "_", ms: 16, dx: -0.16 }
+    - { stat: isotropic, label: "isotropic ref $E_{\\rm cap}^{\\rm rand}$",  color: "#d62728", ls: "--", hline: true }
+
+  rot_scatter: false                     # true -> faint 29-point rotation-null cloud per condition (reads npz)
+
+  plot:
+    figsize: [11, 3]
+    sharey: false
+    #ylim: [0, 35]                        # % ; omit to autoscale
+    logy: true
+    tick_rotation: 30
+    tick_fontsize: 8
+    title_fontsize: 10
+    ylabel_fontsize: 9
+    legend_fontsize: 9
+    legend_loc: "lower right"
+    legend_all: false                    # legend only on the first panel
+  formats: [pdf, png]
+  dpi: 300

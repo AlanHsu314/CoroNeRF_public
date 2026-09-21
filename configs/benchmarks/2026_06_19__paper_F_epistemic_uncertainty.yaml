@@ -1,0 +1,317 @@
+benchmark:
+  name: 2026_06_19__paper_F_epistemic_uncertainty
+  base_config: ../config_coronerf.yaml
+  output_dir: ../../runs_benchmarks/2026_06_19__paper_F_epistemic_uncertainty
+
+  history_plots:
+    enabled: True
+    select_by: final/temp_shell_inner/shell_mean_abs_dlog_mean
+    select_mode: min
+    band_name: inner
+    out_subdir: history_plots
+    include:
+      - train_loss
+      - val_loss
+      - image_mse
+      - image_logmse
+      - image_psnr
+      - ne_mean_abs_dlog
+      - ne_mean_dlog
+      - ne_median_dlog
+      - ne_mean_abs_frac
+      - temp_mean_abs_dlog
+      - temp_mean_dlog
+      - temp_median_dlog
+      - temp_mean_abs_frac
+
+  post_condition_compare:
+    enabled: false
+    reference_experiment: clean
+    max_conditions_per_experiment: 1
+    select_by: final/temp_shell_inner/shell_mean_abs_dlog_mean
+    select_mode: min
+    out_subdir: condition_compare
+    device: cuda
+
+    train_panels:
+      enabled: true
+      num_views: 5
+      strategy: evenly_spaced
+      chunk_size: 8192
+      eps: 1.0e-12
+
+    test_panels:
+      enabled: true
+      num_views: 5
+      strategy: evenly_spaced
+      chunk_size: 8192
+      eps: 1.0e-12
+      use_reference_prediction: true
+
+    shell_compare:
+      enabled: true
+      quantities: [ne, temp]
+      metric_key: mean_dlog
+
+    scatter:
+      enabled: true
+      quantities: [ne, temp]
+      max_points_per_shell: 5000
+      seed: 0
+
+  fixed:
+    ###########################################################
+    ### canonical top-level params
+    ###########################################################
+    mode: train
+    verbosity: 1
+    wandb.enabled: true
+    wandb.mode: offline
+    io.no_save: false
+    use_dummy_dir: false
+    device: cuda
+
+    ###########################################################
+    ### canonical data protocol
+    ###########################################################
+    dataset_dir: ../../datasets/master_datasets_multiline/res256__seed-12648430__eb4c3af3
+
+    load_data_kwargs.train_type: subset
+    load_data_kwargs.train_num_views: 300
+    load_data_kwargs.train_subset_strategy: evenly_spaced
+    load_data_kwargs.train_subset_offset: 0
+
+    load_data_kwargs.holdout_type: fixed_count
+    load_data_kwargs.holdout_num_views: 30
+    load_data_kwargs.holdout_subset_strategy: evenly_spaced
+    load_data_kwargs.holdout_subset_offset: 1
+
+    load_data_kwargs.channel_indices: [0, 1, 2, 3]
+
+    ###########################################################
+    ### canonical model protocol
+    ###########################################################
+    reconstruction.target: ne_t
+
+    model.name: plasma_hash_field
+    model.dtype: float
+    model.strict_types: True
+    model.test_model: False
+
+    PlasmaField_kwargs.n_levels: 20
+    PlasmaField_kwargs.n_features_per_level: 2
+    PlasmaField_kwargs.log2_hashmap_size: 20
+    PlasmaField_kwargs.base_resolution: 16
+    PlasmaField_kwargs.finest_resolution: 512
+    PlasmaField_kwargs.shared_hidden_dim: 64
+    PlasmaField_kwargs.shared_num_hidden: 0      # default no trunk
+    PlasmaField_kwargs.head_hidden_dim: 64
+    PlasmaField_kwargs.head_num_hidden: 2
+
+    renderer.renderer_model: uniform
+    renderer.step_size: 0.00390625
+
+    ###########################################################
+    ### canonical training protocol
+    ###########################################################
+    train.batch_rays: 1024
+    train.max_steps: 60000
+    train.log_every: 100
+    train.checkpoint_every: 10000
+    train.render_every: 10000
+    train.loss_curve_every: 10000
+    train.shell_debug_every: 10000
+    train.shell_debug_radii: [1.2, 1.5, 2.0]
+
+    train.image_loss.name: hetero_gaussian_asinh
+    train.image_loss.lambda_gauss: 0.0
+    train.image_loss.lambda_asinh: 1.0
+    train.image_loss.use_huber_asinh: false
+    train.image_loss.huber_delta: 0.05
+    train.image_loss.asinh_scale_mode: fixed
+    train.image_loss.asinh_scale_by_channel: [1.3e-2, 4.5e-4, 1.0e-2, 5.8e-2]
+
+    ###########################################################
+    ### canonical evaluation protocol
+    ###########################################################
+    eval.enable_inline: True
+    eval.eval_every: 10000
+    eval.chunk_size: 8192
+    eval.log_eps: 1.0e-12
+    eval.shell_radii: [1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 3.0, 3.5, 4.0]
+    eval.shell_metric_bands.low_corona: [1.1, 1.5]
+    eval.shell_metric_bands.inner: [1.1, 2.0]
+    eval.shell_metric_bands.inner_plus: [1.1, 2.6]
+    eval.shell_metric_bands.outer_fov: [2.0, 3.0]
+    eval.shell_metric_bands.los_outer: [3.0, 4.0]
+    eval.shell_metric_bands.full: [1.1, 4.0]
+
+    ###########################################################
+    ### canonical validation protocol
+    ###########################################################
+    train.validation_loss.enabled: True
+    train.validation_loss.every: 10000
+    train.validation_loss.batch_rays: 4096
+    train.validation_loss.max_batches: null       
+    train.validation_loss.num_workers: 0
+    train.validation_loss.image_loss.name: hetero_gaussian_asinh
+    train.validation_loss.image_loss.lambda_gauss: 0.0
+    train.validation_loss.image_loss.lambda_asinh: 1.0
+    train.validation_loss.image_loss.use_huber_asinh: false
+    train.validation_loss.image_loss.huber_delta: 0.05
+    train.validation_loss.image_loss.asinh_scale_mode: fixed
+    train.validation_loss.image_loss.asinh_scale_by_channel: [1.3e-2, 4.5e-4, 1.0e-2, 5.8e-2]
+
+    ###########################################################
+    ### observational protocol
+    ###########################################################
+    observation_mismatch.enabled: False
+    
+    observation_noise.enabled: True
+    observation_noise.model: hetero_gaussian
+    observation_noise.apply_to: train
+
+    observation_noise.hetero_gaussian.shot_coeff_by_global_channel: [1.0e-2, 5.0e-4, 1.0e-2, 5.0e-2]
+    observation_noise.hetero_gaussian.sigma_floor_by_global_channel: [0.0, 0.0, 0.0, 0.0]
+
+    observation_noise.fixed_noise_seed: 0xC0FFEE
+
+
+  seeds: [0xC0FFEE, 0xDECAF, 0xBADD1E, 0xD1CE, 0x8888, 0xB0BA, 0xFACADE, 0xCAFE, 0xF00D, 0xBADA55]
+
+  experiments:
+    - name: clean
+      overrides:
+        observation_noise.enabled: false
+      grid:
+        load_data_kwargs.train_num_views: [5, 20, 100, 300]
+
+    - name: noise_x1
+      grid:
+        load_data_kwargs.train_num_views: [300]
+
+    - name: noise_x9
+      overrides:
+        observation_noise.hetero_gaussian.shot_coeff_by_global_channel: [9.0e-2, 4.5e-3, 9.0e-2, 4.5e-1]
+        train.image_loss.asinh_scale_by_channel: [3.9e-2, 1.35e-3, 3.0e-2, 1.74e-1]
+      grid:
+        load_data_kwargs.train_num_views: [300]
+
+    - name: noise_x25
+      overrides:
+        observation_noise.hetero_gaussian.shot_coeff_by_global_channel: [2.5e-1, 1.25e-2, 2.5e-1, 1.25]
+        train.image_loss.asinh_scale_by_channel: [6.5e-2, 2.25e-3, 5.0e-2, 2.9e-1]
+      grid:
+        load_data_kwargs.train_num_views: [300]
+
+    - name: si_abund_x0p6
+      overrides:
+        observation_noise.enabled: false
+
+        observation_mismatch.enabled: True
+        observation_mismatch.apply_to: all
+        observation_mismatch.model: channel_scale
+        observation_mismatch.diagnostics.enabled: true
+        observation_mismatch.diagnostics.positive_eps: 1.0e-12
+        observation_mismatch.diagnostics.percentiles: [10.0, 50.0, 90.0]
+        observation_mismatch.diagnostics.max_quantile_samples: 200000
+        observation_mismatch.diagnostics.radial_bins:
+          - name: low_corona
+            r_min: 1.1
+            r_max: 1.5
+          - name: inner
+            r_min: 1.1
+            r_max: 2.0
+          - name: mid_outer_inner
+            r_min: 1.5
+            r_max: 2.0
+          - name: full
+            r_min: 1.1
+            r_max: 3.0
+
+        observation_mismatch.channel_scale.scale_by_global_channel: [1.0, 1.0, 0.6, 0.6]
+
+    - name: si_abund_x0p8
+      overrides:
+        observation_noise.enabled: false
+
+        observation_mismatch.enabled: True
+        observation_mismatch.apply_to: all
+        observation_mismatch.model: channel_scale
+        observation_mismatch.diagnostics.enabled: true
+        observation_mismatch.diagnostics.positive_eps: 1.0e-12
+        observation_mismatch.diagnostics.percentiles: [10.0, 50.0, 90.0]
+        observation_mismatch.diagnostics.max_quantile_samples: 200000
+        observation_mismatch.diagnostics.radial_bins:
+          - name: low_corona
+            r_min: 1.1
+            r_max: 1.5
+          - name: inner
+            r_min: 1.1
+            r_max: 2.0
+          - name: mid_outer_inner
+            r_min: 1.5
+            r_max: 2.0
+          - name: full
+            r_min: 1.1
+            r_max: 3.0
+
+        observation_mismatch.channel_scale.scale_by_global_channel: [1.0, 1.0, 0.8, 0.8]
+
+    - name: si_abund_x1p2
+      overrides:
+        observation_noise.enabled: false
+
+        observation_mismatch.enabled: True
+        observation_mismatch.apply_to: all
+        observation_mismatch.model: channel_scale
+        observation_mismatch.diagnostics.enabled: true
+        observation_mismatch.diagnostics.positive_eps: 1.0e-12
+        observation_mismatch.diagnostics.percentiles: [10.0, 50.0, 90.0]
+        observation_mismatch.diagnostics.max_quantile_samples: 200000
+        observation_mismatch.diagnostics.radial_bins:
+          - name: low_corona
+            r_min: 1.1
+            r_max: 1.5
+          - name: inner
+            r_min: 1.1
+            r_max: 2.0
+          - name: mid_outer_inner
+            r_min: 1.5
+            r_max: 2.0
+          - name: full
+            r_min: 1.1
+            r_max: 3.0
+
+        observation_mismatch.channel_scale.scale_by_global_channel: [1.0, 1.0, 1.2, 1.2]
+
+    - name: si_abund_x1p4
+      overrides:
+        observation_noise.enabled: false
+
+        observation_mismatch.enabled: True
+        observation_mismatch.apply_to: all
+        observation_mismatch.model: channel_scale
+        observation_mismatch.diagnostics.enabled: true
+        observation_mismatch.diagnostics.positive_eps: 1.0e-12
+        observation_mismatch.diagnostics.percentiles: [10.0, 50.0, 90.0]
+        observation_mismatch.diagnostics.max_quantile_samples: 200000
+        observation_mismatch.diagnostics.radial_bins:
+          - name: low_corona
+            r_min: 1.1
+            r_max: 1.5
+          - name: inner
+            r_min: 1.1
+            r_max: 2.0
+          - name: mid_outer_inner
+            r_min: 1.5
+            r_max: 2.0
+          - name: full
+            r_min: 1.1
+            r_max: 3.0
+
+        observation_mismatch.channel_scale.scale_by_global_channel: [1.0, 1.0, 1.4, 1.4]
+
+    
+
+

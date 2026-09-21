@@ -1,0 +1,171 @@
+benchmark:
+  name: 2026_05_09__paper_A_density_representation_fe_pair
+  base_config: ../config_coronerf.yaml
+  output_dir: ../../runs_benchmarks/2026_05_09__paper_A_density_representation_fe_pair
+
+  history_plots:
+    enabled: True
+    select_by: final/ne_shell_inner/shell_mean_abs_dlog_mean
+    select_mode: min
+    band_name: inner
+    out_subdir: history_plots
+    include:
+      - train_loss
+      - val_loss
+      - image_mse
+      - image_logmse
+      - image_psnr
+      - ne_mean_abs_dlog
+      - ne_mean_dlog
+      - ne_median_dlog
+      - ne_mean_abs_frac
+
+  post_condition_compare:
+    enabled: false
+
+  fixed:
+    ###########################################################
+    ### canonical top-level params
+    ###########################################################
+    mode: train
+    verbosity: 1
+    wandb.enabled: true
+    wandb.mode: offline
+    io.no_save: false
+    use_dummy_dir: false
+    device: cuda
+
+    ###########################################################
+    ### canonical data protocol
+    ###########################################################
+    dataset_dir: ../../datasets/master_datasets_multiline/res256__seed-12648430__eb4c3af3
+
+    load_data_kwargs.train_type: subset
+    load_data_kwargs.train_num_views: 300
+    load_data_kwargs.train_subset_strategy: evenly_spaced
+    load_data_kwargs.train_subset_offset: 0
+
+    load_data_kwargs.holdout_type: fixed_count
+    load_data_kwargs.holdout_num_views: 30
+    load_data_kwargs.holdout_subset_strategy: evenly_spaced
+    load_data_kwargs.holdout_subset_offset: 1
+
+    load_data_kwargs.channel_indices: [0, 1]
+
+    ###########################################################
+    ### canonical model protocol
+    ###########################################################
+    reconstruction.target: ne
+
+    model.name: plasma_hash_field
+    model.dtype: float
+    model.strict_types: True
+    model.test_model: False
+
+    PlasmaField_kwargs.n_levels: 20
+    PlasmaField_kwargs.n_features_per_level: 2
+    PlasmaField_kwargs.log2_hashmap_size: 20
+    PlasmaField_kwargs.base_resolution: 16
+    PlasmaField_kwargs.finest_resolution: 512
+    PlasmaField_kwargs.shared_hidden_dim: 64
+    PlasmaField_kwargs.shared_num_hidden: 0      # default no trunk
+    PlasmaField_kwargs.head_hidden_dim: 64
+    PlasmaField_kwargs.head_num_hidden: 2
+
+    renderer.renderer_model: uniform
+    renderer.step_size: 0.00390625
+
+    ###########################################################
+    ### canonical training protocol
+    ###########################################################
+    train.batch_rays: 1024
+    train.max_steps: 30000
+    train.log_every: 100
+    train.checkpoint_every: 5000
+    train.render_every: 5000
+    train.loss_curve_every: 5000
+    train.shell_debug_every: 5000
+    train.shell_debug_radii: [1.2, 1.5, 2.0]
+
+    train.image_loss.name: hetero_gaussian_asinh
+    train.image_loss.lambda_gauss: 0.0
+    train.image_loss.lambda_asinh: 1.0
+    train.image_loss.use_huber_asinh: false
+    train.image_loss.huber_delta: 0.05
+    train.image_loss.asinh_scale_mode: fixed
+    train.image_loss.asinh_scale_by_channel: [1.3e-2, 4.5e-4]
+
+    ###########################################################
+    ### canonical evaluation protocol
+    ###########################################################
+    eval.enable_inline: True
+    eval.eval_every: 5000
+    eval.chunk_size: 8192
+    eval.log_eps: 1.0e-12
+    eval.shell_radii: [1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 3.0, 3.5, 4.0]
+    eval.shell_metric_bands.low_corona: [1.1, 1.5]
+    eval.shell_metric_bands.inner: [1.1, 2.0]
+    eval.shell_metric_bands.inner_plus: [1.1, 2.6]
+    eval.shell_metric_bands.outer_fov: [2.0, 3.0]
+    eval.shell_metric_bands.los_outer: [3.0, 4.0]
+    eval.shell_metric_bands.full: [1.1, 4.0]
+
+    ###########################################################
+    ### canonical validation protocol
+    ###########################################################
+    train.validation_loss.enabled: True
+    train.validation_loss.every: 5000
+    train.validation_loss.batch_rays: 4096
+    train.validation_loss.max_batches: null       # full heldout set
+    train.validation_loss.num_workers: 0
+    train.validation_loss.image_loss.name: hetero_gaussian_asinh
+    train.validation_loss.image_loss.lambda_gauss: 0.0
+    train.validation_loss.image_loss.lambda_asinh: 1.0
+    train.validation_loss.image_loss.use_huber_asinh: false
+    train.validation_loss.image_loss.huber_delta: 0.05
+    train.validation_loss.image_loss.asinh_scale_mode: fixed
+    train.validation_loss.image_loss.asinh_scale_by_channel: [1.3e-2, 4.5e-4]
+
+    ###########################################################
+    ### observational protocol
+    ###########################################################
+    observation_mismatch.enabled: False
+    observation_noise.enabled: False
+
+
+  seeds: [0xC0FFEE, 0xDECAF, 0xBADD1E]
+
+  experiments:
+    - name: hash_l17
+      overrides:
+        PlasmaField_kwargs.log2_hashmap_size: 17
+      
+    - name: hash_l20
+      overrides:
+        PlasmaField_kwargs.log2_hashmap_size: 20
+    
+    - name: mlp_256x4
+      overrides:
+        model.name: density_mlp
+        model.dtype: float
+        model.strict_types: True
+
+        DensityMLP_kwargs.hidden_dim: 256
+        DensityMLP_kwargs.num_hidden: 4
+        DensityMLP_kwargs.L: 6
+        DensityMLP_kwargs.in_dim: 3
+        DensityMLP_kwargs.use_sh_encoding: True
+        DensityMLP_kwargs.sh_degree: 2
+
+    - name: grid_smooth_0
+      overrides:
+        model.name: density_spherical_grid
+        renderer.renderer_model: uniform
+        train.lambda_smooth: 0.0
+
+    - name: grid_smooth_10
+      overrides:
+        model.name: density_spherical_grid
+        renderer.renderer_model: uniform
+        train.lambda_smooth: 10.0
+        

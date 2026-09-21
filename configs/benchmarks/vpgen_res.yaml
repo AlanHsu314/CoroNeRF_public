@@ -1,0 +1,41 @@
+##################################################
+## smoke test for vpgen through benchamrk pipeline
+##################################################
+
+benchmark:
+  name: master_datasets_res
+  base_config: ../config_coronerf.yaml
+  output_dir: ../../runs_benchmarks/master_datasets_res
+
+  fixed:
+    mode: vpgen
+    dataset_base_dir: '../../datasets' # where to save datasets
+    verbosity: 1
+    wandb.enabled: False
+    io.no_save: False
+    use_dummy_dir: False
+    device: cuda
+
+    vpgen.n_lon: 3000
+
+  seeds: [0xC0FFEE]
+
+  experiments:
+    - name: res64
+      overrides:
+        vpgen.spatial_H: 64
+        vpgen.spatial_W: 64
+        run_dir_name: dataset_res64_v3000
+
+    - name: res128
+      overrides:
+        vpgen.spatial_H: 128
+        vpgen.spatial_W: 128
+        run_dir_name: dataset_res128_v3000
+
+    - name: res256
+      overrides:
+        vpgen.spatial_H: 256
+        vpgen.spatial_W: 256
+        run_dir_name: dataset_res256_v3000
+    

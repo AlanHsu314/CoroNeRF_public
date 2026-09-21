@@ -1,0 +1,13 @@
+figure_id: { group: uq, slug: sparsification, section: appendix }
+sparsification:
+  name: fig_sparsification
+  output_dir: ../../paper_outputs/figures/uq
+  baselines_dir: ../../runs_identifiability/baselines/paperF_baselines
+  manifest:     ../../runs_identifiability/baselines/paperF_baselines/baselines_manifest.json   # nAUSE in legend
+  quantity: ne
+  conditions: [clean_300v, noise_x9, views_5, si_x1p4]     # the 4 telling regimes
+  condition_labels: { clean_300v: "clean, 300v", noise_x9: "noise x9", views_5: "5 views", si_x1p4: "Si x1.4" }
+  methods: [sigma, emis, oracle, random]                   # add dens/fisher if you want all six
+  ncols: 2
+  ymode: risk                                              # "risk" (retained MAE) or "se" (sparsification error)
+  # plot: { figsize: [9, 6.6] }

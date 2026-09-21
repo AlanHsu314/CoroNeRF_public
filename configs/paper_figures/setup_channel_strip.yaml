@@ -1,0 +1,27 @@
+figure_id: { group: setup, slug: channel_strip, section: main }
+channel_strip:
+  name: fig_channel_strip
+  output_dir: ../../paper_outputs/figures/setup
+  benchmark_spec: ../benchmarks/2026_08_16__paper_B2_joint_target_channel_ablation.yaml   # benchB: all 4 channels
+  experiment: all4                     # uses that experiment's channel_indices (all 4); omit -> the fixed default
+  view_index: 0                        # vp_<index>.npz in the dataset's viewpoints_gt/
+  channel_styles:
+    0: { cmap: magma, label: Fe XIII 1075 }                 # Fe XIII 1074
+    1: { cmap: magma, label: Fe XIII 1080 }                 # Fe XIII 1079
+    2: { cmap: cividis, label: Si IX 2585 }                 # Si IX 2584.6
+    3: { cmap: cividis, label: Si IX 3935 }                 #, vmin: -1.0, vmax: 2.2, label: "Si IX 3929" }   # optional bound/label overrides
+  formats: [pdf, png]
+  dpi: 300
+
+  plot:
+    ncols: 2
+    colorbar: true
+    figsize: [4.2, 5]
+    cmap: inferno
+    bad_color: white
+    interpolation: nearest             # channels are full-res; keep crisp
+    title_fontsize: 9
+    cbar_fontsize: 7
+    aspect: auto         
+    wspace: 0.03         
+    hspace: 0.25

@@ -1,0 +1,81 @@
+figure_id:
+  group: paper_C2
+  slug: denoise
+  section: appendix
+
+figure:
+  name: paper_C2_noisy_obs_denoising
+  benchmark_dir: ../../runs_benchmarks/2026_08_31__paper_C2_noise_view_stress_test
+  #output_dir: ../../paper_outputs/figures/paper_C
+
+  path_remap:
+    enabled: true
+    only_if_missing: true
+    prefix_rewrites:
+      - from: <REPO_ROOT>
+        to: <REPO_ROOT>
+
+  device: cuda
+
+  view_index: 0
+  channel_index: 0          # local active channel index; for all4, 0=Fe XIII 10747
+  chunk_size: 8192
+
+  selection_metric: final/temp_shell_inner/shell_mean_abs_dlog_mean
+  selection_policy: best    # best | median | first
+  select_mode: min
+
+  mask:
+    enabled: true
+    source: positive_first_panel # finite_first_panel | positive_first_panel | nonzero_first_panel
+
+  panels:
+    - label: Clean target
+      experiment: clean
+      source: train_obs       # train_obs | train_pred | test_obs | test_pred
+      where:
+        train_num_views: 300
+
+    - label: "Noise $\\times9$ target"
+      experiment: noise_x9
+      source: train_obs
+      where:
+        train_num_views: 300
+
+    - label: "Noise $\\times25$ target"
+      experiment: noise_x25
+      source: train_obs
+      where:
+        train_num_views: 300
+
+    - label: "Noise $\\times25$ render"
+      experiment: noise_x25
+      source: train_pred
+      where:
+        train_num_views: 300
+
+  display:
+    mode: asinh              # asinh | linear | log_pos
+    scale_by_channel: [1.3e-2, 4.5e-4, 1.0e-2, 5.8e-2]
+    label: "$\\operatorname{asinh}(I/s_c)$"
+    percentile: [1.0, 99.0]
+    # vmin: -2.0
+    # vmax: 2.0
+    # eps: 1.0e-12           # used only for log_pos
+
+  plot:
+    title: null
+    figsize: [10.0, 2.6]
+    dpi: 300
+    formats: [png, pdf]
+
+    font_size: 8
+    title_font_size: 9
+    tick_font_size: 7
+
+    cmap: coolwarm            # coolwarm | RdBu_r | inferno | viridis
+    bad_color: black
+    interpolation: nearest
+
+    colorbar_fraction: 0.035
+    colorbar_pad: 0.02

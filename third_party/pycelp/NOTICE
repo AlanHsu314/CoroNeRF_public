@@ -1,0 +1,25 @@
+CoroNeRF - third-party vendored code
+====================================
+
+third_party/pycelp/ is a MODIFIED copy of pyCELP, redistributed here under the
+BSD-3-Clause license. The full license text and original copyright notice are in
+third_party/pycelp/LICENSE.txt and are retained as required.
+
+  Upstream project : https://github.com/tschad/pycelp
+  Original author  : Thomas A. Schad (National Solar Observatory)
+  Original license : BSD-3-Clause - Copyright (c) 2021 Thomas A Schad
+
+Why it is vendored: pyCELP needed local fixes to build and run in this project's
+environment. A pinned, working copy is included so the LUT-generation step is
+reproducible without an external clone.
+
+Modifications by the CoroNeRF authors (2026):
+  - file pathing in chianti.py
+  - indexing in collisions.py
+
+These changes are the responsibility of the CoroNeRF authors, not of the original
+pyCELP author, who does not endorse this modified version.
+
+Please cite pyCELP if you use it (including this copy):
+  Schad, T. A., & Dima, G. I. 2020, Solar Physics, 295, 98  (ADS 2020SoPh..295...98S)
+  Software: ASCL ascl:2112.001

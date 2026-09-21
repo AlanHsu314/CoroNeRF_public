@@ -1,0 +1,68 @@
+figure_id:
+  group: paper_C2
+  slug: sweeps
+  section: appendix
+
+figure:
+  name: paper_C2_noise_view_heatmaps_x1
+  grouped_csv: ../../runs_benchmarks/2026_08_31__paper_C2_noise_view_stress_test/aggregate_grouped.csv
+  #output_dir: ../../paper_outputs/figures/paper_C
+
+  x:
+    key: train_num_views
+    values: [5, 20, 100, 300]
+    labels: ["5", "20", "100", "300"]
+    label: "Training views $V$"
+
+  y:
+    key: experiment_name
+    values: [clean, noise_x1, noise_x9, noise_x25]
+    labels: ["0", "1", "9", "25"]
+    label: "Noise multiplier $\\eta$"
+
+  # Optional global row filter.
+  # filter:
+  #   some_column: some_value
+
+  panels:
+    - metric: final/ne_shell_inner/shell_mean_abs_dlog_mean
+      label: "" #"$n_e$ inner MAE"
+      title: "$n_e$ inner MAE"
+      #colorbar_label: "Mean abs. dlog"
+      vmax: 0.4
+      # cmap: magma_r
+      # clip: true
+
+    - metric: final/temp_shell_inner/shell_mean_abs_dlog_mean
+      label: "" #"$T$ inner MAE"
+      title: "$T_e$ inner MAE"
+      #colorbar_label: "Mean abs. dlog"
+      vmax: 0.4
+      # cmap: magma_r
+      # clip: true
+
+  plot:
+    figsize: [7.2, 1.75]
+    dpi: 300
+    formats: [png, pdf]
+
+    font_size: 8
+    title_font_size: 9
+    tick_font_size: 7
+
+    annot_auto_contrast: true   # black text on light cells, white on dark (default: false)
+
+    cmap: magma_r               # magma_r | viridis | plasma | inferno
+    aspect: auto                # auto | equal
+    annotate: true
+    annot_color: white
+    annot_font_size: 7
+    annot_fmt_small: "{:.3f}"
+    annot_fmt_large: "{:.2f}"
+
+    vmin: 0.0
+    # vmax: 0.4                 # optional global vmax
+    clip: true
+
+    colorbar_fraction: 0.046
+    colorbar_pad: 0.04

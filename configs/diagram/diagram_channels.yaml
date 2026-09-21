@@ -1,0 +1,18 @@
+channels:
+  output_dir: ../../paper_outputs/diagram/channels
+  # point at the dataset directly (fastest) OR give benchmark_spec + experiment to auto-resolve it
+  dataset_dir: ../../datasets/master_datasets_multiline/res256__seed-12648430__eb4c3af3
+  # benchmark_spec: ../benchmarks/2026_08_31__paper_C2_noise_view_stress_test.yaml
+  # experiment: clean
+  channels: [0, 1, 2, 3]           # Fe1075, Fe1080, Si2585, Si3935
+  views: [0, 750]                  # dataset viewpoint indices == angles (view i -> lon = i * 360/n_lon)
+  mask: true                       # observations are masked; set false for an unmasked look
+  dpi: 300
+  formats: [png]
+  transparent: False               # make bad pixels alpha 0
+  bad_color: black                 # o.w. use this color
+  channel_styles:                  # optional per-channel colormap / bounds (log10 intensity units)
+    0: { cmap: inferno }
+    1: { cmap: inferno }
+    2: { cmap: cividis }
+    3: { cmap: cividis }

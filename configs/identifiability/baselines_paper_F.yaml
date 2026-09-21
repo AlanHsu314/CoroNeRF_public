@@ -1,0 +1,41 @@
+baselines:
+  name: paperF_baselines
+  benchmark_dir: ../../runs_benchmarks/2026_06_19__paper_F_epistemic_uncertainty
+  output_root: ../../runs_identifiability          # finds operators/paperF_base__…
+  device: cuda
+  path_remap:
+      enabled: true
+      prefix_rewrites:
+        - {from: <REPO_ROOT>,
+           to: <REPO_ROOT>}
+  band: { r_min: 1.1, r_max: 2.0 }                 # pooled inner band; or e.g. radii: [1.5]
+  shells: { edges: [] }                            # [] -> one shell per native in-band radius (3 shells at n_r=8).
+                                                   # for ~0.1R shells: set base.grid.n_r: 20 AND edges: [1.10,1.20,...,2.00]
+  ecap: { max_splits: 2000, seed: 0 }              # per-field E_cap + split-seed generalization + longitude-rotation null
+  t_grid: { n: 100, t_max: 0.95 }                  # abstention grid for AUSE
+  n_random: 20
+  n_boot: 2000                                     # bootstrap CIs
+  leave_one_out: true                              # LOO stats (seed)
+  # BASE operator built ONCE at the MAX views/channels so every condition is a row-subset.
+  base:
+    name: paperF_base
+    grid: {n_lon: 30, n_lat: 18, n_r: 8, r_min: 1.05, r_max: 3.0}
+    rays: {split: train, n_views: 300, max_rays_per_view: 20}
+    whiten: {base_shot_coeff: [1.0e-2, 5.0e-4, 1.0e-2, 5.0e-2], base_sigma_floor: [0,0,0,0]}
+    renderer_step_size: 0.0104
+    base:                                     # <-- nested: which benchmark run to linearize at
+      benchmark_dir: ../../runs_benchmarks/2026_06_19__paper_F_epistemic_uncertainty
+      experiment: clean
+      where: {train_num_views: 300}
+
+  conditions:
+    - { id: clean_300v, eta: 1,  experiment: clean,        where: { train_num_views: 300 } }
+    - { id: noise_x9,   eta: 9,  experiment: noise_x9,     where: { train_num_views: 300 } }
+    - { id: noise_x25,  eta: 25, experiment: noise_x25,    where: { train_num_views: 300 } }
+    - { id: views_5,    eta: 1,  views: 5,  experiment: clean, where: { train_num_views: 5 } }
+    - { id: views_20,   eta: 1,  views: 20,  experiment: clean, where: { train_num_views: 20 } }
+    - { id: views_100,   eta: 1,  views: 100,  experiment: clean, where: { train_num_views: 100 } }
+    - { id: si_x0p6, eta: 1, experiment: si_abund_x0p6 }
+    - { id: si_x0p8, eta: 1, experiment: si_abund_x0p8 }
+    - { id: si_x1p2, eta: 1, experiment: si_abund_x1p2 }
+    - { id: si_x1p4, eta: 1, experiment: si_abund_x1p4 }

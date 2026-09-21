@@ -1,0 +1,65 @@
+figure_id:
+  group: paper_B2
+  slug: summary
+  section: appendix
+
+figure:
+  name: paper_B2_image_field_grid_appendix
+  output_dir: ../../paper_outputs/figures/paper_B2/summary
+
+  columns:
+    - x_metric: final/val_loss
+      title: "Observed channels (deployment view)"
+      xlabel: 'held-out asinhErr($I$), observed channels'
+    - x_metric: final/val_global4
+      title: "All four channels (common probe)"
+      xlabel: 'held-out asinhErr($I$), all 4 channels'
+
+  rows:
+    - y_metric: final/ne_shell_inner/shell_mean_abs_dlog_mean
+      ylabel: '$\mathrm{MAE}_{\mathrm{inner}}(\log_{10}n_{\rm e})$'
+    - y_metric: final/temp_shell_inner/shell_mean_abs_dlog_mean
+      ylabel: '$\mathrm{MAE}_{\mathrm{inner}}(\log_{10}T_{\rm e})$'
+
+  benchmarks:
+    - id: paper_B2
+      study: channel_ablation
+      benchmark_dir: ../../runs_benchmarks/2026_08_16__paper_B2_joint_target_channel_ablation
+      experiments:
+        - { name: fe13_10747, label: Fe single, group: 1 line }
+        - { name: si9_39293,  label: Si single, group: 1 line }
+        - { name: fe13_pair,  label: Fe pair,   group: 2 lines }
+        - { name: si9_pair,   label: Si pair,   group: 2 lines }
+        - { name: all4,       label: All 4,     group: 4 lines }
+
+  style:
+    color_by: paper_group
+    marker_by: paper_label
+    legend_by: paper_label
+    colors: { 1 line: "#0072B2", 2 lines: "#E69F00", 4 lines: "#009E73" }
+    markers: { Fe single: o, Si single: s, Fe pair: ^, Si pair: D, All 4: P }
+    size: 42
+    alpha: 0.85
+    edgecolor: black
+    linewidth: 0.5
+
+  plot:
+    title: null
+    figsize: [7.6, 5]
+    dpi: 300
+    formats: [png, pdf]
+    font_size: 8
+    title_font_size: 9
+    tick_font_size: 7
+    xscale: null
+    yscale: null
+    grid_alpha: 0.25
+    # legend_mode: figure        # shared legend to the right (cleaner for 2x2)
+    # legend_loc: center right
+    # legend_bbox_to_anchor: [1.02, 0.5]
+    # legend_frame: false
+    # legend_ncol: 1
+    legend_mode: axis          # put the legend inside the right panel (as in your global4 fig)
+    legend_axis: 0
+    legend_loc: upper right
+    legend_frame: true

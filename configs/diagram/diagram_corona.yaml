@@ -1,0 +1,16 @@
+corona:
+  device: cuda
+  benchmark_dir: ../../runs_benchmarks/2026_06_19__paper_F_epistemic_uncertainty
+  experiment: clean
+  where: {train_num_views: 300}
+  path_remap: {enabled: true, only_if_missing: true,
+    prefix_rewrites: [{from: <REPO_ROOT>,
+                       to: <REPO_ROOT>}]}
+  lon: 0.0
+  lat: 0.0
+  quantities: [emission]
+  mask_modes: [unmasked, masked]
+  render: {H: 768, W: 768, fov_rsun: 3.0, obs_r: 215.0, integ_r_min_rsun: 1.0, uniform_samples: 512}
+  mask: {r_min_rsun: 1.0}
+  dpi: 300
+  formats: [png]

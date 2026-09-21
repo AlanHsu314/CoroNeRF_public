@@ -1,0 +1,64 @@
+###########################################
+### VISUALIZATION POST-TRAINING
+###########################################
+
+# general
+mode: visualize
+resume_run_dir: 'runs_benchmarks/multiline_ablation_ne_t/runs/fe13_si9_all4_ne_t__seed-12648430__4fa517c6' #'runs_benchmarks/paper_ne_representation/runs/mlp_baseline__seed-12648430__c8edbf2c' #'runs_benchmarks/paper_ne_representation/runs/hashgrid_l19__seed-12648430__00884e3f' | 'runs/20260403-184323_hashgrid_V1' # relative to repo
+device: cuda
+verbosity: 1
+
+# visualize
+visualize:
+  checkpoint: latest          # latest | explicit path to ckpt
+  out_dir_name: visualize
+
+  make_density_shell_video: True
+  make_temperature_shell_video: True
+  make_microwave_orbit: True
+  make_tilted_orbit: True
+
+  # when rendering, cut off LOS integrated emissivity outside this range
+  render_volume:
+    enable_radial_cutoff: True
+    r_min_render_rsun: 1.0
+    r_max_render_rsun: 3.0
+
+  # image plane masking of corona
+  image_mask:
+    apply_coronal_mask: True
+    also_save_unmasked: True    # save no mask trippy version
+    r_min_mask_rsun: 1.0         # min radius to clip
+
+
+  density_shell_video:
+    r_min: 1.1
+    r_max: 3.0
+    n_radii: 120
+
+  temperature_shell_video:
+    r_min: 1.1
+    r_max: 3.0
+    n_radii: 120
+
+  microwave_orbit:
+    lat: 0.0
+    obs_r: 215.0
+    n_frames: 120
+    H: 512
+    W: 512
+    fov_rsun: 3.0
+    rmax_vis_rsun: 3.0
+    chunk_rays: 8192
+
+  tilted_orbit:
+    lon_c: 0.0
+    lat_c: 0.0
+    alpha_deg: 10.0
+    obs_r: 215.0
+    n_frames: 120
+    H: 512
+    W: 512
+    fov_rsun: 3.0
+    rmax_vis_rsun: 3.0    # display mask
+    chunk_rays: 8192

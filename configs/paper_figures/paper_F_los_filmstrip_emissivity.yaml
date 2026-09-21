@@ -1,0 +1,71 @@
+figure_id: {group: paper_F, slug: los_filmstrip, section: main}
+figure:
+  name: paper_F_los_filmstrip_emissivity
+  benchmark_dir: ../../runs_benchmarks/2026_06_19__paper_F_epistemic_uncertainty
+  device: cuda
+  path_remap:
+    enabled: true
+    only_if_missing: true
+    prefix_rewrites:
+      - from: <REPO_ROOT>
+        to: <REPO_ROOT>
+
+  run: {}
+  #source: both                 # pred | gt
+  n_cols: 6
+  lat: 0.0
+  lon_range: [0.0, 360.0]      # even longitudes across a full rotation
+
+  # ZOOM = fov_rsun (the picture frame). Set this to 2.0 to "crop to 2 R_sun".
+  render:
+    H: 512
+    W: 512
+    fov_rsun: 2 #1.5 # image frame extent (zoom)
+    obs_r: 215.0
+    chunk_rays: 8192
+    integ_r_min_rsun: 1.1  # 3D LOS integration domain (defaults to 1.0, only coronal regions)
+    integ_r_max_rsun: 3.0
+    uniform_samples: 1024 # requires a max, since now we have uniform radial samples instead of relying on old renderer samples
+
+  # optional soft annulus INSIDE the frame (independent of fov). r_min=0 keeps the disk.
+  mask: {enabled: false, r_min_rsun: 0.0, r_max_rsun: 2.0}    # remove/comment to disable; set enabled:false to force off
+
+  quantities: []
+
+  rows:
+    - {quantity: emission, source: gt,   run: {experiment: clean},         where: {train_num_views: 300}, label: "GT", channels: null, cmap: magma, log: true } #, log: true}
+    - {quantity: emission, source: pred, run: {experiment: clean},         where: {train_num_views: 300}, label: "clean, 300v", channels: null, cmap: magma, log: true } #, log: true}
+    - {quantity: emission, source: pred, run: {experiment: clean},         where: {train_num_views: 20},  label: "clean, 20v", channels: null, cmap: magma, log: true } #,  log: true}
+    - {quantity: emission, source: pred, run: {experiment: clean},         where: {train_num_views: 5},   label: "clean, 5v", channels: null, cmap: magma, log: true } #,   log: true}
+    - {quantity: emission, source: pred, run: {experiment: noise_x25},     where: {train_num_views: 300}, label: "noise x25", channels: null, cmap: magma, log: true } #,   log: true}
+    - {quantity: emission, source: pred, run: {experiment: si_abund_x0p6}, where: {train_num_views: 300}, label: "Si x0.6", channels: null, cmap: magma, log: true } #,     log: true}
+    - {quantity: emission, source: pred, run: {experiment: si_abund_x1p4}, where: {train_num_views: 300}, label: "Si x1.4", channels: null, cmap: magma, log: true } #,     log: true}
+
+
+  # color_limits:
+  #   emission_ch0:   { vmin: -6.5, vmax: -3.0 }     # bright Fe line
+  #   emission_ch1:   { vmin: -8.5, vmax: -5.0 }     # faint Si line -> its own lower range
+  #   emission_ch2:   { vmin: -6.5, vmax: -3.0 }
+  #   emission_ch3:   { vmin: -8.5, vmax: -5.0 }
+  #   emission_total: { vmin: -6.0, vmax: -2.5 }
+
+  plot:
+    figsize: [7, 7] 
+    dpi: 300
+    formats: [pdf, png]
+    font_size: 9
+    title_font_size: 11
+    tick_font_size: 9
+    aspect: equal
+    interpolation: nearest
+    colorbar: true
+    colorbar_fraction: 0.012
+    colorbar_pad: 0.01
+    bad_color: black
+    title: null
+    cb_label: false
+
+    wspace: 0.02
+    hspace: 0.06
+    w_pad: 0.02
+    h_pad: 0.02

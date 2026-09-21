@@ -1,0 +1,23 @@
+field:
+  device: cuda
+  benchmark_dir: ../../runs_benchmarks/2026_06_19__paper_F_epistemic_uncertainty
+  experiment: clean
+  where: {train_num_views: 300}
+  path_remap: {enabled: true, only_if_missing: true,
+    prefix_rewrites: [{from: <REPO_ROOT>,
+                       to: <REPO_ROOT>}]}
+  lon: 0.0
+  lat: 0.0
+  quantities: [column_ne, ewt_temp]
+  mask_modes: [unmasked, masked] # theres something wrong the masked one, dont use that one
+  render:
+    H: 512
+    W: 512
+    fov_rsun: 1.5
+    obs_r: 215.0
+    integ_r_min_rsun: 1.1
+    integ_r_max_rsun: 2.5 
+    uniform_samples: 1024
+  #mask: {r_min_rsun: 1.0}
+  dpi: 300
+  formats: [png]
