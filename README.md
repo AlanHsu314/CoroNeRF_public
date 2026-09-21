@@ -1,7 +1,7 @@
 # CoroNeRF
 
 Differentiable, multi-line neural tomography that recovers 3-D coronal electron density (n_e) and
-temperature (T) from multi-view, multi-line spectral-intensity images of the solar corona, hence the name CoroNeRF.
+temperature (T_e) from multiview, multiline spectral-intensity images of the solar corona, hence the name CoroNeRF.
 
 ## Contents
 - `coronerf/` — the package (forward model, fields, renderer, training, benchmark + identifiability tools)
@@ -21,7 +21,8 @@ Large artifacts (`data/`, `datasets/`, `runs*/`) are **not** included; `REPRODUC
 # not tested for mac
 
 #---------- (1) create env
-conda create -n coronerf python=3.11 && conda activate coronerf
+conda create -n coronerf python=3.11
+conda activate coronerf
 
 #---------- (2) install Pycelp for our CHIANTI API
 # specify numpy and numba versions, latest Pycelp version uses this
@@ -58,7 +59,7 @@ python scripts/run_benchmark.py --spec 2026_08_16__paper_B2_joint_target_channel
 ```
 
 ## Reproducing the paper
-See `REPRODUCE.md`. Benchmark specs live in `configs/benchmarks/` (the `*_2*`/`*_F_*` set),
+See `REPRODUCE.md`. Benchmark specs live in `configs/benchmarks/`,
 ensemble/error-localization tools in `configs/identifiability/`, figures in `configs/paper_figures/`.
 
 ## Notes
