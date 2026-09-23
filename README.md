@@ -3,6 +3,27 @@
 Differentiable, multi-line neural tomography that recovers 3-D coronal electron density (n_e) and
 temperature (T_e) from multiview, multiline spectral-intensity images of the solar corona, hence the name CoroNeRF.
 
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <a href="./readme_assets/tilted_orbit_emission_total_both.gif">
+        <img src="./readme_assets/tilted_orbit_emission_total_both.gif" alt="Tilted orbit render" width="100%">
+      </a>
+      <br>
+      <sub><b>Tilted orbit render of total emissivity</b></sub>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center">
+      <a href="./readme_assets/shell_sweep_ne_temp.gif">
+        <img src="./readme_assets/shell_sweep_ne_temp.gif" alt="shell comparison" width="100%">
+      </a>
+      <br>
+      <sub><b>Joint density-temperature reconstruction</b></sub>
+    </td>
+  </tr>
+</table>
+
 ## Contents
 - `coronerf/` — the package (forward model, fields, renderer, training, benchmark + identifiability tools)
 - `configs/` — every experiment/benchmark/paper-level figure is a YAML (base config + benchmark specs + figure specs)

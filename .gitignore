@@ -64,5 +64,10 @@ wandb/
 *.safetensors
 *.avi
 *.mp4
+*.gif
 *_preview.gif
 *_palette.png
+
+# --- README assets ---
+!/readme_assets/shell_sweep_ne_temp.gif
+!/readme_assets/tilted_orbit_emission_total_both.gif
